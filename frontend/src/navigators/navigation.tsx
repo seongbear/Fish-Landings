@@ -5,6 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons'; 
 import { useAppStore } from '../store/store';
 import HomePage from '../screens/(tabs)/home/screens/home';
+import ProfilePage from '../screens/(tabs)/profile/screens/profile';
 
 const Tab = createBottomTabNavigator();
 
@@ -36,6 +37,8 @@ export default function AppNavigator() {
         <Tab.Screen name="Home">
           {() => <HomePage user={user?.email || 'User'} />}
         </Tab.Screen>
+        <Tab.Screen name="Profile" component={ProfilePage} />
+          
       </Tab.Navigator>
     </NavigationContainer>
   );

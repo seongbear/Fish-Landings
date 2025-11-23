@@ -27,7 +27,7 @@ export function useWeather(lat: number, lon: number) {
         const weatherURL = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=relative_humidity_2m,visibility&current_weather=true&daily=sunrise,sunset,uv_index_max,precipitation_sum,cloudcover_max&timezone=auto`;
         // Marine API (wave height)
         const marineURL = `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}&hourly=wave_height&timezone=auto`;
-
+        
         const [weatherRes, marineRes] = await Promise.all([
           fetch(weatherURL),
           fetch(marineURL),
@@ -120,6 +120,5 @@ export function useWeather(lat: number, lon: number) {
 
     load();
   }, [lat, lon]);
-
   return { weather, loading };
 }
