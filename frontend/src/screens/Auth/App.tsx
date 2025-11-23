@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { SafeAreaView, TextInput, Button, StyleSheet, Text, View } from 'react-native';
-import { useAppStore } from './store';
+import { useAppStore } from '../../store/store';
 import AppNavigator from '../../navigators/navigation';
 
 export default function App() {

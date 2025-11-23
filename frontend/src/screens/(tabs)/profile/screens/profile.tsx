@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
-import { useAppStore } from '../../../Auth/store';
+import { useAppStore } from '../../../../store/store';
 
 
 export default function ProfilePage() {
