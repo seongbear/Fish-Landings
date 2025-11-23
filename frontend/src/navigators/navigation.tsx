@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native'; // ✅ Import StyleSheet
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons'; 
-import { useAppStore } from '../screens/Auth/store';
+import { useAppStore } from '../store/store';
 import HomePage from '../screens/(tabs)/home/screens/home';
 
 const Tab = createBottomTabNavigator();
