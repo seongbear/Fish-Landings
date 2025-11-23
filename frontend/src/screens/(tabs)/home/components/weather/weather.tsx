@@ -68,7 +68,7 @@ export const Weather: React.FC = () => {
                         </View>
                         <Text style={{ color: '#fff', fontSize: 40, fontWeight: '600', }}>{currentWeather.temp}°C</Text>
                         <Text style={{ color: '#fff', fontSize: 16, marginBottom: 10 }}>{currentWeather.condition}</Text>
-                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 8, width: 140, justifyContent: 'center', alignItems: 'center', borderRadius: 50, backgroundColor: fishingCondition.color, paddingHorizontal: 12, paddingVertical: 6,}}>
+                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 8, justifyContent: 'center', alignItems: 'center', borderRadius: 50, backgroundColor: fishingCondition.color, paddingHorizontal: 12, paddingVertical: 6,}}>
                           <Ionicons name="ellipse" size={12} color="white"/>  
                           <Text style={{ color: '#fff', fontSize: 12, marginLeft: 6}}>{fishingCondition.label} for Fishing</Text>
                         </View>
@@ -171,10 +171,10 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   sunCircle: {
-    width: 40,              // diameter of the circle
+    width: 40,              
     height: 40,
-    borderRadius: 20,       // half of width/height for perfect circle
-    backgroundColor: '#faebde', // semi-transparent yellow
+    borderRadius: 20,       
+    backgroundColor: '#faebde', 
     alignItems: 'center',
     justifyContent: 'center',
   },
