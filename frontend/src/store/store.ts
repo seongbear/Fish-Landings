@@ -9,26 +9,15 @@ import {
   User
 } from 'firebase/auth';
 
-// Load environment variables
-const {
-  FIREBASE_API_KEY,
-  FIREBASE_AUTH_DOMAIN,
-  FIREBASE_PROJECT_ID,
-  FIREBASE_STORAGE_BUCKET,
-  FIREBASE_MESSAGING_SENDER_ID,
-  FIREBASE_APP_ID,
-  FIREBASE_MEASUREMENT_ID
-} = process.env;
-
 // Firebase config
 const firebaseConfig = {
-  apiKey: FIREBASE_API_KEY,
-  authDomain: FIREBASE_AUTH_DOMAIN,
-  projectId: FIREBASE_PROJECT_ID,
-  storageBucket: FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: FIREBASE_MESSAGING_SENDER_ID,
-  appId: FIREBASE_APP_ID,
-  measurementId: FIREBASE_MEASUREMENT_ID
+  apiKey: "AIzaSyAKdxpk-jylKNZSwHwY3BAoCuubR9YakLM",
+  authDomain: "fish-d70e4.firebaseapp.com",
+  projectId: "fish-d70e4",
+  storageBucket: "fish-d70e4.firebasestorage.app",
+  messagingSenderId: "366103675038",
+  appId: "1:366103675038:web:2e57777355584b9104bb8f",
+  measurementId: "G-R9VBNL8BND"
 };
 
 const app = initializeApp(firebaseConfig);

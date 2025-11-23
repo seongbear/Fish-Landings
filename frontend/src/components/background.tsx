@@ -8,7 +8,7 @@ interface BackgroundProps {
 
 export default function Background({ children }: BackgroundProps) {
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       {children}
     </SafeAreaView>
   );
@@ -17,6 +17,6 @@ export default function Background({ children }: BackgroundProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#dce9f5' 
+    backgroundColor: '#dce9f5', // your background color
   },
 });
