@@ -22,7 +22,6 @@ def get_history(user_id: str, session_id: str):
 
 
 # --- Routes ---
-
 @chat_bp.route("/chat", methods=["POST"])
 def chat():
     try:
