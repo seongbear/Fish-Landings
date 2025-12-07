@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAppStore } from '../store/store';
 import HomePage from '../screens/(tabs)/home/screens/home';
 import ProfilePage from '../screens/(tabs)/profile/screens/profile';
+import AIHelpPage from '../screens/(tabs)/ai_help/screens/aiHelp';
 
 const Tab = createBottomTabNavigator();
 
@@ -26,6 +27,8 @@ export default function AppNavigator() {
               iconName = 'home';
             } else if (route.name === 'Profile') {
               iconName = 'person';
+            } else if (route.name === 'AI Help') {
+              iconName = 'chatbubble';
             }
 
             return <Ionicons name={iconName} size={24} color={focused ? '#1c47d4ff' : 'gray'} />;
@@ -37,8 +40,8 @@ export default function AppNavigator() {
         <Tab.Screen name="Home">
           {() => <HomePage user={user?.email || 'User'} />}
         </Tab.Screen>
-        <Tab.Screen name="Profile" component={ProfilePage} />
-          
+        <Tab.Screen name="AI Help" component={AIHelpPage} />
+        <Tab.Screen name="Profile" component={ProfilePage} />          
       </Tab.Navigator>
     </NavigationContainer>
   );
