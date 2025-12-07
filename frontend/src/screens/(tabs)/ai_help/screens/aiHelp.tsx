@@ -6,60 +6,12 @@ import ChatHeader from "../components/chatHeader";
 import Background from "../../../../components/background";
 import ChatDrawer from "../components/chatDrawer"; 
 import { Plus } from "lucide-react-native";  
+import useChatHooks from "../hooks/useChatHook";
 
-const generateId = (): string => 'session-' + Math.random().toString(36).substring(2, 9);
+
 
 export default function AIHelpPage() {
-    const [sessions, setSessions] = useState([{ 
-        id: "session1", 
-        title: "Bass Lure Inquiry", 
-        messages: [
-            { text: "Hello! I'm your AI fishing assistant...", time: "12:10 am", isUser: false },
-            { text: "hi, what's a good lure for bass in cloudy weather?", time: "12:18 am", isUser: true },
-        ]
-    }]);
-
-    const [currentSessionId, setCurrentSessionId] = useState(sessions[0].id);
-    const [message, setMessage] = useState("");
-    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-
-    const currentSession = sessions.find(s => s.id === currentSessionId);
-    if (!currentSession) return <View style={styles.screen}><Text>Error: Session not found.</Text></View>;      
-
-    const handleSend = () => {
-        if (!message.trim() || !currentSession) return;
-        const now = new Date();
-        const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }).toLowerCase();
-        const newMessage = { text: message, time: timeString, isUser: true };
-
-        setSessions(prevSessions => 
-            prevSessions.map(session => 
-                session.id === currentSessionId
-                    ? { ...session, messages: [...session.messages, newMessage] }
-                    : session
-            )
-        );
-        setMessage("");
-    };
-
-    const handleSelectSession = (sessionId: string) => {
-        setCurrentSessionId(sessionId);
-        setIsDrawerOpen(false); 
-    };
-
-    const createNewSession = () => {
-        const newSessionId = generateId();
-        const newSession = {
-            id: newSessionId,
-            title: "New Chat Session",
-            messages: [{ text: "New conversation started. How can I assist you?", time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }).toLowerCase(), isUser: false }],
-        };
-
-        setSessions(prevSessions => [newSession, ...prevSessions]);
-        setCurrentSessionId(newSessionId);
-        setIsDrawerOpen(false);
-    };
-
+    const chatHook = useChatHooks();
     return (
         <>
             <KeyboardAvoidingView
@@ -70,18 +22,18 @@ export default function AIHelpPage() {
                 <View style={styles.screen}>
                     <Background>
                         <ChatHeader 
-                            title={currentSession.title} 
-                            onMenuPress={() => setIsDrawerOpen(true)}
+                            title={chatHook.currentSession?.title || "AI Help"} 
+                            onMenuPress={() => chatHook.setIsDrawerOpen(true)}
                         />
                         
                         <View style={styles.messageListContainer}>
-                            <MessageList messages={currentSession.messages} />
+                            <MessageList messages={chatHook.currentSession?.messages || []} />
                         </View>
 
                         <ChatInput 
-                            message={message}
-                            setMessage={setMessage}
-                            onSend={handleSend}
+                            message={chatHook.message}
+                            setMessage={chatHook.setMessage}
+                            onSend={chatHook.handleSend}
                         />
                     </Background>
                 </View>
@@ -89,32 +41,32 @@ export default function AIHelpPage() {
 
             {/* Chat Drawer */}
             <ChatDrawer 
-                isOpen={isDrawerOpen} 
-                onClose={() => setIsDrawerOpen(false)}
+                isOpen={chatHook.isDrawerOpen} 
+                onClose={() => chatHook.setIsDrawerOpen(false)}
                 position="right"
             >
                 {/* Drawer Header: New Chat Button */}
                 <View style={styles.drawerHeader}>
                     <Text style={styles.drawerTitle}>Chat Sessions</Text>
-                    <TouchableOpacity onPress={createNewSession} style={styles.newChatButton}>
+                    <TouchableOpacity onPress={chatHook.createNewSession} style={styles.newChatButton}>
                         <Plus size={20} color="#fff" />
                     </TouchableOpacity>
                 </View>
 
                 {/* List of Sessions */}
-                {sessions.map((session) => (
+                {chatHook.sessions.map((session) => (
                     <TouchableOpacity
                         key={session.id}
                         style={[
                             styles.sessionItem,
-                            session.id === currentSessionId && styles.activeSession,
+                            session.id === chatHook.currentSessionId && styles.activeSession,
                         ]}
-                        onPress={() => handleSelectSession(session.id)}
+                        onPress={() => chatHook.handleSelectSession(session.id)}
                     >
                         <Text 
                             style={[
                                 styles.sessionTitle,
-                                session.id === currentSessionId && styles.activeSessionTitle,
+                                session.id === chatHook.currentSessionId && styles.activeSessionTitle,
                             ]} 
                             numberOfLines={1}
                         >

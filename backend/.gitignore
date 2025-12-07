@@ -1,0 +1,57 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.tmp
+*.log
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# VSCode settings
+.vscode/
+
+# macOS
+.DS_Store
+
+# Environment variables
+.env
+*.env
+
+# Firebase credentials (DO NOT UPLOAD)
+serviceAccountKey.json
+
+# Build artifacts
+*.egg-info/
+dist/
+build/
+
+# Uvicorn reload cache
+reload/
+*.pid
+
+# PyInstaller
+*.spec
+
+# Logs
+logs/
+*.log
+
+# IDE / Editor
+.idea/
+*.swp
+
+# OS files
+Thumbs.db
+
+# SSL certificates
+cert.pem
+key.pem
+*.pem
+*.crt
+*.key
+
