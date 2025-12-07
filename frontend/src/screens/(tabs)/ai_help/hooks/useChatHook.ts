@@ -2,18 +2,9 @@ import { useEffect, useState } from "react";
 import { Alert } from "react-native";
 import { useAppStore } from "../../../../store/store";
 import { sendMessageAPI, createSessionAPI } from "../../../../api/chatApi";
+import { Session } from "../types/session";
+import { Message } from "../types/message";
 
-export interface Message {
-  text: string;
-  time: string;
-  isUser: boolean;
-}
-
-export interface Session {
-  id: string;
-  title: string;
-  messages: Message[];
-}
 
 interface UseChatHookReturn {
   sessions: Session[];
@@ -37,9 +28,7 @@ const useChatHook = (): UseChatHookReturn => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // -------------------------------
   // Initialize first session
-  // -------------------------------
   useEffect(() => {
     if (!user) return;
 
@@ -72,9 +61,7 @@ const useChatHook = (): UseChatHookReturn => {
 
   const currentSession = sessions.find(s => s.id === currentSessionId) || null;
 
-  // -------------------------------
   // Send message
-  // -------------------------------
   const handleSend = async () => {
     if (!message.trim() || !currentSession || !user) return;
 
@@ -103,9 +90,7 @@ const useChatHook = (): UseChatHookReturn => {
     }
   };
 
-  // -------------------------------
   // Session management
-  // -------------------------------
   const handleSelectSession = (sessionId: string) => {
     setCurrentSessionId(sessionId);
     setIsDrawerOpen(false);
