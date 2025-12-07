@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Alert } from "react-native";
-import { createSessionAPI, sendMessageAPI } from "../../../../store/api";
 import { useAppStore } from "../../../../store/store";
+import { sendMessageAPI, createSessionAPI } from "../../../../api/chatApi";
 
 export interface Message {
   text: string;

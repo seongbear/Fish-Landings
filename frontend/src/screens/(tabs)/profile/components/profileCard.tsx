@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Image, Text, TouchableOpacity } from 'react-native';
 import { MapPin, SquarePen } from 'lucide-react-native';
-import { getCurrentLocation } from '../../../../utilities/helper/getCurrentLocation';
+import { getCurrentLocation } from '../../../../utils/getCurrentLocation';
 
 export default function ProfileCard() {
     const uri = 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=500&q=60';
