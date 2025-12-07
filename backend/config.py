@@ -11,7 +11,7 @@ if not GEMINI_API_KEY:
     raise RuntimeError("Missing GEMINI_API_KEY in .env")
 
 client = genai.Client(api_key=GEMINI_API_KEY)
-LLM_MODEL = "gemini-2.5-flash"
+LLM_MODEL = "gemini-2.5-flash-lite"
 
 cred = credentials.Certificate("serviceAccountKey.json")
 if not firebase_admin._apps:

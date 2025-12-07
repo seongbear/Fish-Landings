@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, TouchableOpacity } from "react-native";
 import MessageList from "../components/messageList";
 import ChatInput from "../components/chatInput";
@@ -6,12 +6,11 @@ import ChatHeader from "../components/chatHeader";
 import Background from "../../../../components/background";
 import ChatDrawer from "../components/chatDrawer"; 
 import { Plus } from "lucide-react-native";  
-import useChatHooks from "../hooks/useChatHook";
-
-
+import useChatHook from "../hooks/useChatHook";
 
 export default function AIHelpPage() {
-    const chatHook = useChatHooks();
+    const chatHook = useChatHook();
+
     return (
         <>
             <KeyboardAvoidingView
@@ -54,27 +53,33 @@ export default function AIHelpPage() {
                 </View>
 
                 {/* List of Sessions */}
-                {chatHook.sessions.map((session) => (
-                    <TouchableOpacity
-                        key={session.id}
-                        style={[
-                            styles.sessionItem,
-                            session.id === chatHook.currentSessionId && styles.activeSession,
-                        ]}
-                        onPress={() => chatHook.handleSelectSession(session.id)}
-                    >
-                        <Text 
+                {chatHook.sessions.map((session) => {
+                    const lastMessageTime = session.messages.length > 0
+                        ? session.messages[session.messages.length - 1].time
+                        : "";
+
+                    return (
+                        <TouchableOpacity
+                            key={session.id}
                             style={[
-                                styles.sessionTitle,
-                                session.id === chatHook.currentSessionId && styles.activeSessionTitle,
-                            ]} 
-                            numberOfLines={1}
+                                styles.sessionItem,
+                                session.id === chatHook.currentSessionId && styles.activeSession,
+                            ]}
+                            onPress={() => chatHook.handleSelectSession(session.id)}
                         >
-                            {session.title}
-                        </Text>
-                        <Text style={styles.sessionTime}>{session.messages[0]?.time || ''}</Text>
-                    </TouchableOpacity>
-                ))}
+                            <Text 
+                                style={[
+                                    styles.sessionTitle,
+                                    session.id === chatHook.currentSessionId && styles.activeSessionTitle,
+                                ]} 
+                                numberOfLines={1}
+                            >
+                                {session.title}
+                            </Text>
+                            <Text style={styles.sessionTime}>{lastMessageTime}</Text>
+                        </TouchableOpacity>
+                    );
+                })}
             </ChatDrawer>
         </>
     );
@@ -93,6 +98,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: 20,
+        paddingHorizontal: 10,
     },
     drawerTitle: {
         fontSize: 18,
@@ -131,5 +137,5 @@ const styles = StyleSheet.create({
     sessionTime: {
         fontSize: 12,
         color: '#6b7280',
-    }
+    },
 });
