@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { initializeApp } from 'firebase/app';
 import {
@@ -9,6 +8,12 @@ import {
   onAuthStateChanged,
   User
 } from 'firebase/auth';
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc,
+} from 'firebase/firestore';
 
 // Firebase config
 const firebaseConfig = {
@@ -23,6 +28,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const firestore = getFirestore(app);
 
 interface AppState {
   user: User | null;
@@ -33,9 +39,19 @@ interface AppState {
 }
 
 export const useAppStore = create<AppState>((set) => {
-  // Automatically track user session
-  onAuthStateChanged(auth, (user) => {
+  // Track auth state
+  onAuthStateChanged(auth, async (user) => {
     if (user) {
+      // Fetch user data from Firestore
+      const docRef = doc(firestore, "users", user.uid);
+      const docSnap = await getDoc(docRef);
+      if (!docSnap.exists()) {
+        // If new user, create doc
+        await setDoc(docRef, {
+          email: user.email,
+          createdAt: new Date().toISOString(),
+        });
+      }
       set({ user });
     } else {
       set({ user: null });
@@ -48,7 +64,19 @@ export const useAppStore = create<AppState>((set) => {
     signIn: async (email, password) => {
       try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        set({ user: userCredential.user, error: '' });
+        const user = userCredential.user;
+
+        // Ensure user document exists in Firestore
+        const docRef = doc(firestore, "users", user.uid);
+        const docSnap = await getDoc(docRef);
+        if (!docSnap.exists()) {
+          await setDoc(docRef, {
+            email: user.email,
+            createdAt: new Date().toISOString(),
+          });
+        }
+
+        set({ user, error: '' });
       } catch (error: any) {
         set({ error: error.message });
       }
@@ -56,7 +84,15 @@ export const useAppStore = create<AppState>((set) => {
     signUp: async (email, password) => {
       try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        set({ user: userCredential.user, error: '' });
+        const user = userCredential.user;
+
+        // Create user document in Firestore
+        await setDoc(doc(firestore, "users", user.uid), {
+          email: user.email,
+          createdAt: new Date().toISOString(),
+        });
+
+        set({ user, error: '' });
       } catch (error: any) {
         set({ error: error.message });
       }

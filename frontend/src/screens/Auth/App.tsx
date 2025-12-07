@@ -18,7 +18,8 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Firebase Auth</Text>
+      <Text style={styles.title}>Welcome</Text>
+
       <TextInput
         style={styles.input}
         placeholder="Email"
@@ -27,6 +28,7 @@ export default function App() {
         keyboardType="email-address"
         autoCapitalize="none"
       />
+
       <TextInput
         style={styles.input}
         placeholder="Password"
@@ -34,19 +36,56 @@ export default function App() {
         onChangeText={setPassword}
         secureTextEntry
       />
+
       {error ? <Text style={styles.error}>{error}</Text> : null}
+
       <View style={styles.buttonContainer}>
-        <Button title="Sign In" onPress={() => signIn(email, password)} />
-        <Button title="Sign Up" onPress={() => signUp(email, password)} />
+        <View style={styles.button}>
+          <Button title="Sign In" onPress={() => signIn(email, password)} />
+        </View>
+        <View style={styles.button}>
+          <Button title="Sign Up" onPress={() => signUp(email, password)} />
+        </View>
       </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20 },
-  input: { width: '100%', borderWidth: 1, borderColor: '#ccc', padding: 10, marginBottom: 12, borderRadius: 8 },
-  buttonContainer: { flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginTop: 12 },
-  error: { color: 'red', marginBottom: 8 },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+    backgroundColor: '#f0f4f8',
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 30,
+    color: '#1f2937',
+  },
+  input: {
+    width: '100%',
+    borderWidth: 1,
+    borderColor: '#cbd5e1',
+    padding: 12,
+    marginBottom: 15,
+    borderRadius: 10,
+    backgroundColor: '#fff',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
+  },
+  button: {
+    flex: 1,
+    marginHorizontal: 5,
+  },
+  error: {
+    color: 'red',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
 });

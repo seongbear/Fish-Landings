@@ -5,41 +5,95 @@ import time
 
 chat_bp = Blueprint("chat_bp", __name__)
 
-def save_msg(user, session, role, text):
-    db.reference(f"chats/{user}/{session}").push({
+# --- Helper Functions ---
+
+def save_msg(user_id: str, session_id: str, role: str, text: str):
+    db.reference(f"chats/{user_id}/{session_id}/messages").push({
         "role": role,
         "text": text,
         "ts": int(time.time())
     })
 
-def get_history(user, session):
-    data = db.reference(f"chats/{user}/{session}").get()
+def get_history(user_id: str, session_id: str):
+    data = db.reference(f"chats/{user_id}/{session_id}/messages").get()
     if not data:
         return []
     return sorted([msg for msg in data.values()], key=lambda x: x["ts"])
 
+
+# --- Routes ---
+
 @chat_bp.route("/chat", methods=["POST"])
 def chat():
-    data = request.get_json()
-    user = data["user_id"]
-    session = data["session_id"]
-    query = data["query"]
-
-    save_msg(user, session, "user", query)
-
-    history = get_history(user, session)
-    context = "\n".join([f"{m['role']}: {m['text']}" for m in history])
-
     try:
-        res = client.models.generate_content(
-            model=LLM_MODEL,
-            contents=context,
-        )
-        ai_response = res.text
+        data = request.get_json() or {}
+        user = data.get("user_id")
+        session_id = data.get("session_id")
+        query = data.get("query")
+
+        if not user or not session_id or not query:
+            return jsonify({"error": "Missing user_id, session_id, or query"}), 400
+
+        # Save user message
+        save_msg(user, session_id, "user", query)
+
+        # Build context from full chat history
+        history = get_history(user, session_id)
+        context = "\n".join([f"{m['role']}: {m['text']}" for m in history])
+
+        # Generate AI response
+        try:
+            res = client.models.generate_content(
+                model=LLM_MODEL,
+                contents=context,
+            )
+            ai_response = res.text
+        except Exception as e:
+            ai_response = "AI error: " + str(e)
+
+        # Save AI response
+        save_msg(user, session_id, "ai", ai_response)
+
+        # Return updated history
+        updated_history = get_history(user, session_id)
+        return jsonify({"answer": ai_response, "history": updated_history}), 200
+
     except Exception as e:
-        ai_response = "AI error: " + str(e)
+        return jsonify({"error": str(e)}), 500
 
-    save_msg(user, session, "ai", ai_response)
-    updated = get_history(user, session)
 
-    return jsonify({"answer": ai_response, "history": updated})
+@chat_bp.route("/session/history", methods=["POST"])
+def session_history():
+    try:
+        data = request.get_json() or {}
+        user = data.get("user_id")
+        session_id = data.get("session_id")
+
+        if not user or not session_id:
+            return jsonify({"error": "Missing user_id or session_id"}), 400
+
+        raw = db.reference(f"chats/{user}/{session_id}/messages").get() or {}
+        history_sorted = sorted(raw.values(), key=lambda x: x["ts"])
+        return jsonify({"history": history_sorted}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@chat_bp.route("/session/title", methods=["POST"])
+def generate_title():
+    try:
+        data = request.get_json() or {}
+        messages = data.get("messages")
+
+        if not messages or not isinstance(messages, list):
+            return jsonify({"title": "New Chat"}), 200
+
+        # Use first message as title (truncate to 20 chars)
+        first_msg = messages[0].get("text", "New Chat")
+        title = first_msg[:20] + "..." if len(first_msg) > 20 else first_msg
+
+        return jsonify({"title": title}), 200
+
+    except Exception as e:
+        return jsonify({"title": "New Chat", "error": str(e)}), 500
