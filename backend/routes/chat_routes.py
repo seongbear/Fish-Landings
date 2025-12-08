@@ -1,7 +1,10 @@
 from flask import Blueprint, request, jsonify
 from firebase_admin import db
+from prompt.llm_prompt import LLM_PROMPT
 from config import client, LLM_MODEL
+from google.genai import types
 import time
+
 
 chat_bp = Blueprint("chat_bp", __name__)
 
@@ -29,6 +32,7 @@ def chat():
         user = data.get("user_id")
         session_id = data.get("session_id")
         query = data.get("query")
+        print("User query:", query)
 
         if not user or not session_id or not query:
             return jsonify({"error": "Missing user_id, session_id, or query"}), 400
@@ -38,13 +42,37 @@ def chat():
 
         # Build context from full chat history
         history = get_history(user, session_id)
-        context = "\n".join([f"{m['role']}: {m['text']}" for m in history])
+        
+        formatted_history = []
+        
+        for m in history:
+            raw_role = m.get("role", "user").lower()
+            text_content = m.get("text", "")
+
+            # Skip empty messages to prevent API errors
+            if not text_content.strip():
+                continue
+
+            # Map 'ai' -> 'model'
+            if raw_role in ["ai", "model", "assistant"]:
+                api_role = "model"
+            else:
+                api_role = "user"
+
+            formatted_history.append({
+                "role": api_role,
+                "parts": [{"text": text_content}] 
+            })
 
         # Generate AI response
         try:
             res = client.models.generate_content(
                 model=LLM_MODEL,
-                contents=context,
+                config=types.GenerateContentConfig(
+                    system_instruction=LLM_PROMPT,
+                    # thinking_config=types.ThinkingConfig(thinking_budget=4096),
+                ),
+                contents=formatted_history,
             )
             ai_response = res.text
         except Exception as e:
@@ -52,6 +80,7 @@ def chat():
 
         # Save AI response
         save_msg(user, session_id, "ai", ai_response)
+        print("AI response:", ai_response)
 
         # Return updated history
         updated_history = get_history(user, session_id)

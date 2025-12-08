@@ -59,16 +59,10 @@ export const getHistoryAPI = async (sessionId: string) => {
 }
 
 // generate a title for a session based on the first user message
-export const generateTitleAPI = async (messages: { text: string; isUser: boolean }[]) => {
-  const user = useAppStore.getState().user;
-  if (!user) throw new Error("User not signed in");
-
-  const res = await fetch(`${API_BASE_URL}/session/title`, {  // <-- use /title
+export const generateTitleAPI = async (user_id: string, session_id: string, title: string) => {
+  const res = await fetch(`${API_BASE_URL}/session/title`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ messages }),
+    body: JSON.stringify({ user_id, session_id, title }),
   });
-
-  return res.json();
-};
-
+}
