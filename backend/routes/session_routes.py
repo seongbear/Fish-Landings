@@ -2,6 +2,10 @@ from flask import Blueprint, request, jsonify
 import uuid
 from firebase_admin import db
 import time
+from google.genai import types
+from prompt.title_prompt import CHAT_TITLE_PROMPT
+from config import client, LLM_MODEL
+
 
 session_bp = Blueprint("session_bp", __name__)
 
@@ -69,18 +73,55 @@ def generate_title():
         data = request.get_json() or {}
         user = data.get("user_id")
         session_id = data.get("session_id")
-        title = data.get("title", "New Chat")
+        
+        # Frontend sends messages (Faster, saves DB read)
+        messages = data.get("messages", [])
 
         if not user or not session_id:
             return jsonify({"status": "error", "message": "Missing user_id or session_id"}), 400
+        
+        # Fallback - Fetch from DB if frontend didn't send messages
+        if not messages:
+            # Note: Adjust path if you are using 'session_messages' or 'chats'
+            ref = db.reference(f"chats/{user}/{session_id}")
+            snapshot = ref.get()
+            if snapshot:
+                # Convert dict to sorted list
+                messages = sorted(snapshot.values(), key=lambda x: x.get("ts", 0))
+            else:
+                messages = []
+
+        # If still no messages (empty chat), keep default
+        if not messages:
+            return jsonify({"status": "success", "title": "New Chat"}), 200
+    
+        # format conversation for the LLM 
+        snippet = messages[:5]
+        conversation_text = "\n".join([f"{m.get('role', 'user')}: {m.get('text', '')}" for m in snippet])
+        
+        # We use the class-based approach to avoid the 'system_instructions' error
+        model = client.model.GenerativeModel(
+            model_name=LLM_MODEL,
+            config =types.GenerateContentConfig(
+                system_instruction=CHAT_TITLE_PROMPT
+            )
+        )
+        
+        response = model.generate_content(conversation_text)
+        
+        #CLean up the output 
+        generated_title = response.text.strip().replace('"', '').replace('*', '').replace('\n', '')
+        # Fallback if model returns empty strings 
+        if not generated_title:
+            generated_title = "New Chat"
 
         meta_ref = db.reference(f"chats/{user}/{session_id}/meta")
         meta_ref.update({
-            "title": title,
+            "title": generated_title,
             "updatedAt": int(time.time())
         })
 
-        return jsonify({"status": "success", "title": title}), 200
-
+        return jsonify({"status": "success", "title": generated_title}), 200
     except Exception as e:
+        print("ERROR /session/title:", str(e))  # backend error log
         return jsonify({"status": "error", "message": str(e)}), 500

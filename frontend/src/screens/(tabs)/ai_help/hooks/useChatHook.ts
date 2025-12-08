@@ -166,10 +166,7 @@ const useChatHook = (): UseChatHookReturn => {
 
       // Generate session title if session was temporary or short
       if (isTempSession || currentSession?.messages.length! <= 2) {
-        const titleResp = await generateTitleAPI(messagesToSave);
-        setSessions((prev) =>
-          prev.map((s) => (s.id === sessionId ? { ...s, title: titleResp.title } : s))
-        );
+        await generateTitleAPI(user.uid, sessionId, resp.answer);
       }
     } catch (err: any) {
       Alert.alert("Error", err.message || "Failed to send message");
