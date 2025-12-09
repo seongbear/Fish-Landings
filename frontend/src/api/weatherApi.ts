@@ -1,4 +1,4 @@
-import { WeatherData, WeatherDataRaw } from "../types/weather";
+import { WeatherData, WeatherDataRaw } from "../screens/(tabs)/home/types/weather";
 import { CONDITION_MAP } from "../constants/conditionMap";
 
 const conditionMap = CONDITION_MAP

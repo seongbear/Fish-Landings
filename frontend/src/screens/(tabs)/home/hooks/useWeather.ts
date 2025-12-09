@@ -1,6 +1,6 @@
 // src/hooks/useWeather.ts
 import { useEffect, useState } from "react";
-import { WeatherData } from "../../../../types/weather";
+import { WeatherData } from "../types/weather";
 import { fetchWeatherData } from "../../../../api/weatherApi";
 
 export function useWeather(lat: number, lon: number) {
