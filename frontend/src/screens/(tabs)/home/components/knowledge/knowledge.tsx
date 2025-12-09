@@ -1,5 +1,6 @@
 import { Book, ChevronRight } from 'lucide-react-native';
 import React from 'react';
+import { useNavigation } from '@react-navigation/native';
 import { View, StyleSheet, Text, TouchableOpacity, Image } from 'react-native';
 
 interface KnowledgeProps {
@@ -37,8 +38,10 @@ const mockKnowledgeData: KnowledgeProps[] = [
 ];
 
 export const Knowledge: React.FC = () => {
+    const navigation = useNavigation<any>();
     const onPress = () => {
         console.log("Navigating to Knowledge Center details...");
+        navigation.navigate("KnowledgeCenter");
     }
 
     const onItemPress = (id: number) => {

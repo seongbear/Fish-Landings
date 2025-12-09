@@ -4,11 +4,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface BackgroundProps {
   children?: ReactNode;
+  disableTopEdge?: boolean;
 }
 
-export default function Background({ children }: BackgroundProps) {
+export default function Background({ children, disableTopEdge }: BackgroundProps) {
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={styles.container} edges={disableTopEdge ? ['left', 'right', 'bottom'] : ['top', 'left', 'right']}>
       {children}
     </SafeAreaView>
   );

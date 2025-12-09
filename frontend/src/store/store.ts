@@ -1,34 +1,13 @@
-import { create } from 'zustand';
-import { initializeApp } from 'firebase/app';
+import { create } from "zustand";
 import {
-  getAuth,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
-  User
-} from 'firebase/auth';
-import {
-  getFirestore,
-  doc,
-  setDoc,
-  getDoc,
-} from 'firebase/firestore';
-
-// Firebase config
-const firebaseConfig = {
-  apiKey: "AIzaSyAKdxpk-jylKNZSwHwY3BAoCuubR9YakLM",
-  authDomain: "fish-d70e4.firebaseapp.com",
-  projectId: "fish-d70e4",
-  storageBucket: "fish-d70e4.firebasestorage.app",
-  messagingSenderId: "366103675038",
-  appId: "1:366103675038:web:2e57777355584b9104bb8f",
-  measurementId: "G-R9VBNL8BND"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const firestore = getFirestore(app);
+  User,
+} from "firebase/auth";
+import { doc, setDoc, getDoc } from "firebase/firestore";
+import { auth, firestore } from "../firebaseConfig";
 
 interface AppState {
   user: User | null;
@@ -38,72 +17,69 @@ interface AppState {
   signOutUser: () => Promise<void>;
 }
 
-export const useAppStore = create<AppState>((set) => {
-  // Track auth state
-  onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      // Fetch user data from Firestore
+export const useAppStore = create<AppState>((set) => ({
+  user: null,
+  error: "",
+
+  signIn: async (email, password) => {
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
       const docRef = doc(firestore, "users", user.uid);
       const docSnap = await getDoc(docRef);
       if (!docSnap.exists()) {
-        // If new user, create doc
         await setDoc(docRef, {
           email: user.email,
           createdAt: new Date().toISOString(),
         });
       }
-      set({ user });
-    } else {
-      set({ user: null });
+
+      set({ user, error: "" });
+    } catch (err: any) {
+      set({ error: err.message });
     }
-  });
+  },
 
-  return {
-    user: null,
-    error: '',
-    signIn: async (email, password) => {
-      try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
+  signUp: async (email, password) => {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
 
-        // Ensure user document exists in Firestore
-        const docRef = doc(firestore, "users", user.uid);
-        const docSnap = await getDoc(docRef);
-        if (!docSnap.exists()) {
-          await setDoc(docRef, {
-            email: user.email,
-            createdAt: new Date().toISOString(),
-          });
-        }
+      await setDoc(doc(firestore, "users", user.uid), {
+        email: user.email,
+        createdAt: new Date().toISOString(),
+      });
 
-        set({ user, error: '' });
-      } catch (error: any) {
-        set({ error: error.message });
-      }
-    },
-    signUp: async (email, password) => {
-      try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-
-        // Create user document in Firestore
-        await setDoc(doc(firestore, "users", user.uid), {
-          email: user.email,
-          createdAt: new Date().toISOString(),
-        });
-
-        set({ user, error: '' });
-      } catch (error: any) {
-        set({ error: error.message });
-      }
-    },
-    signOutUser: async () => {
-      try {
-        await signOut(auth);
-        set({ user: null, error: '' });
-      } catch (error: any) {
-        set({ error: error.message });
-      }
+      set({ user, error: "" });
+    } catch (err: any) {
+      set({ error: err.message });
     }
-  };
+  },
+
+  signOutUser: async () => {
+    try {
+      await signOut(auth);
+      set({ user: null, error: "" });
+    } catch (err: any) {
+      set({ error: err.message });
+    }
+  },
+}));
+
+// Listen to auth state changes globally
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    const docRef = doc(firestore, "users", user.uid);
+    const docSnap = await getDoc(docRef);
+    if (!docSnap.exists()) {
+      await setDoc(docRef, {
+        email: user.email,
+        createdAt: new Date().toISOString(),
+      });
+    }
+    useAppStore.setState({ user });
+  } else {
+    useAppStore.setState({ user: null });
+  }
 });
