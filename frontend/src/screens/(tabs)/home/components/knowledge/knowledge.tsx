@@ -2,6 +2,7 @@ import { Book, ChevronRight } from 'lucide-react-native';
 import React from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { View, StyleSheet, Text, TouchableOpacity, Image } from 'react-native';
+import { useArticleList } from '../../hooks/useArticle';
 
 interface KnowledgeProps {
     id: number;
@@ -10,42 +11,16 @@ interface KnowledgeProps {
     description: string;
 }
 
-const mockKnowledgeData: KnowledgeProps[] = [
-    {
-        id: 1,
-        image: { uri: 'https://worldoceanreview.com/wp-content/uploads/2013/02/wor2_k5b-s116_5-13_fischereimethoden_stellnetz.jpg' },
-        title: "Fishing Techniques",
-        description: "Learn about various fishing techniques to improve your catch rate."
-    },
-    {
-        id: 2,
-        image: { uri: 'https://img.freepik.com/free-vector/set-icons-with-sea-river-fishes-with-inscriptions-white-isolated_1284-26638.jpg?semt=ais_hybrid&w=740&q=80' },
-        title: "Fish Species",
-        description: "Get to know different fish species and their habitats."
-    },
-    {
-        id: 3,
-        image: { uri: 'https://smoothmovesseats.com/wp-content/uploads/2025/07/H2OOnTheGo-378563-Rod-Ocean-Sunset-blogbanner1.jpg' },
-        title: "Weather Patterns",
-        description: "Understand weather patterns and how they affect fishing."
-    },
-    {
-        id: 4,
-        image: { uri: 'https://images.squarespace-cdn.com/content/v1/60a43bf842d7b601064a8828/40d0c768-a05b-4400-833d-54515d5cd949/types+of+gears.jpg' },
-        title: "Gear Guide",
-        description: "A comprehensive guide to fishing gear and equipment."
-    }
-];
-
 export const Knowledge: React.FC = () => {
     const navigation = useNavigation<any>();
+    const knowledgeData = useArticleList();
     const onPress = () => {
         console.log("Navigating to Knowledge Center details...");
         navigation.navigate("KnowledgeCenter");
     }
 
-    const onItemPress = (id: number) => {
-        console.log(`Navigating to details of knowledge item with id: ${id}`);
+    const onItemPress = (item: any) => {
+        navigation.navigate('KnowledgeDetail', { article: item });
     }
 
     return (
@@ -62,12 +37,12 @@ export const Knowledge: React.FC = () => {
 
             {/* 2 x 2 Grid */}
             <View style={styles.grid}>
-                {mockKnowledgeData.map((item, index) => (
-                    <TouchableOpacity onPress={() => onItemPress(item.id)} style={styles.gridItem} key={item.id}>
-                        <Image source={item.image} style={styles.image} />
+                {knowledgeData.articles.slice(0, 4).map((item, index) => (
+                    <TouchableOpacity onPress={() => onItemPress(item)} style={styles.gridItem} key={item.id}>
+                        <Image source={{ uri: item.imageUrl[0] }} style={styles.image} />
                         <View style={styles.content}>
-                            <Text style={styles.title}>{item.title}</Text>
-                            <Text style={styles.description}>{item.description}</Text>
+                            <Text style={styles.title} numberOfLines={1}>{item.title}</Text>
+                            <Text style={styles.description} numberOfLines={2}>{item.summary}</Text>
                         </View>
                     </TouchableOpacity>
                 ))}
