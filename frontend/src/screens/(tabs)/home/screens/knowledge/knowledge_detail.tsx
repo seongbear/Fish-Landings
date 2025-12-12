@@ -1,17 +1,16 @@
 import React from 'react';
 import { Text, StyleSheet, ScrollView, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../../../navigators/type'; // Ensure this path is correct
-import Background from '../../../../components/background';
-import { formatDate } from '../../../../utils/formatDate';
-import { fetchArticleById } from '../../../../api/articleApi';
-import { useArticleById } from '../hooks/useArticle';
-import ImageSlider from '../../../../components/image_slider';
+import { RootStackParamList } from '../../../../../navigators/type';
+import { useArticleById } from '../../hooks/useArticle';
+import Background from '../../../../../components/background';
+import ImageSlider from '../../../../../components/image_slider';
+import { formatDate } from '../../../../../utils/formatDate';
 
-// 1. Define the props for this specific screen
+// Define the props for this specific screen
 type Props = NativeStackScreenProps<RootStackParamList, 'KnowledgeDetail'>;
 
-// 2. Add '{ route }' to the function arguments
+// Add '{ route }' to the function arguments
 export const KnowledgeDetailScreen = ({ route }: Props) => {
     const article = useArticleById(route.params.article.id);
 
