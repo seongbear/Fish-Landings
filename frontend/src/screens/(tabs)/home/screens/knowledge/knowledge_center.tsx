@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import Background from '../../../../components/background';
-import { useArticleById, useArticleCategories, useArticleList } from '../hooks/useArticle';
-import { Carousel } from '../components/knowledge/carousel';
-import { FilterDropdown } from '../../../../components/filter';
-import { KnowledgeListItem } from '../components/knowledge/knowledgeListItem';
-
+import { Carousel } from '../../components/knowledge/carousel';
+import { KnowledgeListItem } from '../../components/knowledge/knowledgeListItem';
+import { FilterDropdown } from '../../../../../components/filter';
+import Background from '../../../../../components/background';
+import { useArticleById, useArticleCategories, useArticleList } from '../../hooks/useArticle';
 
 
 export const KnowledgeCenterScreen = () => {
     const articleList = useArticleList();
-    const articleDetail = useArticleById('1');
     const articleCategories = [ 'All', ...useArticleCategories().categories ].map(cat => typeof cat === 'string' ? cat : cat.name);
 
     const [selectedCategory, setSelectedCategory] = useState<string>('All');

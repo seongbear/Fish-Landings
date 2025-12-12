@@ -10,8 +10,8 @@ import { useAppStore } from '../store/store';
 import HomePage from '../screens/(tabs)/home/screens/home';
 import ProfilePage from '../screens/(tabs)/profile/screens/profile';
 import AIHelpPage from '../screens/(tabs)/ai_help/screens/aiHelp';
-import { KnowledgeCenterScreen } from '../screens/(tabs)/home/screens/knowledge_center';
-import { KnowledgeDetailScreen } from '../screens/(tabs)/home/screens/knowledge_detail';
+import { KnowledgeCenterScreen } from '../screens/(tabs)/home/screens/knowledge/knowledge_center';
+import { KnowledgeDetailScreen } from '../screens/(tabs)/home/screens/knowledge/knowledge_detail';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -80,7 +80,7 @@ export default function AppNavigator() {
           name="KnowledgeDetail"
           options={({ route }: any) => ({
             headerShown: true,
-            title: route.params?.article?.title || 'Article Detail',
+            title: 'Article Details',
             headerTitleAlign: 'center',
             headerTitleStyle: styles.headerTitle,
           })}
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: '600',
   }
 });
