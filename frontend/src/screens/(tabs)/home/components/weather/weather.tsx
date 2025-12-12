@@ -10,19 +10,8 @@ import { useWeather } from '../../hooks/useWeather';
 import { getFishingCondition } from '../../hooks/getFishingCondition';
 import { getCurrentLocation } from '../../../../../utils/getCurrentLocation';
 import toAMPM from '../../../../../utils/toAMPM';
-
-interface CurrentWeather {
-  temp: number;
-  condition: string;
-  windSpeed: number;
-  humidity: number;
-  visibility: number;
-  waveHeight: number;
-  uvIndex: number;
-  sunrise: string;
-  sunset: string;
-  code: number;
-}
+import { CurrentWeather } from '../../types/weather';
+import { useNavigation } from '@react-navigation/native';
 
 export const Weather: React.FC = () => {
   const [location, setLocation] = useState<any>(null);
@@ -57,8 +46,9 @@ export const Weather: React.FC = () => {
     waveHeight: currentWeather.waveHeight,
   }), [currentWeather]);
 
+  const navigation = useNavigation<any>();
   const handlePress = () => {
-    console.log("Navigating to detailed weather forecast...");
+    navigation.navigate('DaysWeather');
   };
 
   if (loading || !weather) {

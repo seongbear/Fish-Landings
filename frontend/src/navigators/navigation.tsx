@@ -12,6 +12,7 @@ import ProfilePage from '../screens/(tabs)/profile/screens/profile';
 import AIHelpPage from '../screens/(tabs)/ai_help/screens/aiHelp';
 import { KnowledgeCenterScreen } from '../screens/(tabs)/home/screens/knowledge/knowledge_center';
 import { KnowledgeDetailScreen } from '../screens/(tabs)/home/screens/knowledge/knowledge_detail';
+import DaysWeather from '../screens/(tabs)/home/screens/weather/days_weather';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -90,6 +91,16 @@ export default function AppNavigator() {
           )}
         </Stack.Screen>
 
+        <Stack.Screen 
+          name="DaysWeather" 
+          component={DaysWeather} 
+          options={({ route }: any) => ({
+            headerShown: true,
+            title: 'Weather Forecast',
+            headerTitleAlign: 'center',
+            headerTitleStyle: styles.headerTitle,
+          })}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
