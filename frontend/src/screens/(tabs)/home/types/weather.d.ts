@@ -35,3 +35,32 @@ export interface WeatherDataRaw {
     cloudcover_max?: number[];
   };
 }
+
+export interface CurrentWeather {
+  temp: number;
+  condition: string;
+  windSpeed: number;
+  humidity: number;
+  visibility: number;
+  waveHeight: number;
+  uvIndex: number;
+  sunrise: string;
+  sunset: string;
+  code: number;
+}
+
+// types/weather.ts
+
+export interface ForecastItem {
+  id: string;
+  day: string;          // e.g., "Fri"
+  date: string;         // e.g., "12 Dec"
+  temp: string;         // e.g., "26°"
+  icon: string;         // Lucide icon name: 'sun', 'cloud', 'rain', etc.
+  activityScore: number;// 0-100
+  wind: string;         // e.g., "12 km/h"
+  windDir: string;      // e.g., "NE"
+  wave: string;         // e.g., "0.5m"
+  tide: string;         // e.g., "H 09:00" (Mocked if API doesn't provide)
+  moon: string;         // e.g., "moon-full"
+}
