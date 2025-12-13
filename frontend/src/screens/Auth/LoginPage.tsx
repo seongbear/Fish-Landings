@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { SafeAreaView, TextInput, Button, StyleSheet, Text, View } from 'react-native';
-import { useAppStore } from '../../store/store';
 import AppNavigator from '../../navigators/navigation';
+import { useAppStore } from '../../store/store';
 
-export default function App() {
+export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -11,10 +11,6 @@ export default function App() {
   const error = useAppStore((state) => state.error);
   const signIn = useAppStore((state) => state.signIn);
   const signUp = useAppStore((state) => state.signUp);
-
-  if (user) {
-    return <AppNavigator />;
-  }
 
   return (
     <SafeAreaView style={styles.container}>
