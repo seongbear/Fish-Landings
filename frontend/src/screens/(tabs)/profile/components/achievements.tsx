@@ -7,7 +7,6 @@ import AchievementCard from './achievementCard';
 
 export default function Achievements() {    
     const { profile, loading } = useUserProfile();
-    console.log('Profile Achievements:', profile?.achievements);
 
     const AchievementsData: CommonCardProps[] = [
         { icon: '🎣', title: 'First Catch', achieved: profile?.achievements?.first_catch || false },
