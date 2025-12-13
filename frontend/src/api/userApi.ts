@@ -44,7 +44,7 @@ export const fetchUserProfileById = async (
       email: userData.email,
       imageUrl: userData.imageUrl,
       createdAt: userData.createdAt,
-      achievements,
+      achievements: achievements as AchievementProps,
     };
   } catch (error) {
     console.error("Error fetching user profile:", error);
