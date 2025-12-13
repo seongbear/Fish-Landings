@@ -1,7 +1,7 @@
 import { ForecastItem, WeatherData, WeatherDataRaw } from "../screens/(tabs)/home/types/weather";
 import { CONDITION_MAP } from "../constants/conditionMap";
-import { formatForecastDate, getCalculatedTide, getIconName, getWindDirection } from "../screens/(tabs)/home/hooks/helperFunction";
 import { calculateFishingScore } from "../screens/(tabs)/home/hooks/getFishingCondition";
+import { formatForecastDate, getCalculatedTide, getIconName, getWindDirection } from "../screens/(tabs)/home/hooks/useForecastWeather";
 
 const conditionMap = CONDITION_MAP
 

@@ -3,8 +3,6 @@ import { StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Ionicons } from '@expo/vector-icons';
-
 import { useAppStore } from '../store/store';
 
 import HomePage from '../screens/(tabs)/home/screens/home';
@@ -13,6 +11,7 @@ import AIHelpPage from '../screens/(tabs)/ai_help/screens/aiHelp';
 import { KnowledgeCenterScreen } from '../screens/(tabs)/home/screens/knowledge/knowledge_center';
 import { KnowledgeDetailScreen } from '../screens/(tabs)/home/screens/knowledge/knowledge_detail';
 import DaysWeather from '../screens/(tabs)/home/screens/weather/days_weather';
+import { Home, MessageCircle, User } from 'lucide-react-native';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -28,19 +27,12 @@ function TabNavigator() {
         tabBarLabel: route.name,
         tabBarLabelStyle: styles.tabBarLabelStyle,
         tabBarIcon: ({ focused }) => {
-          let iconName: keyof typeof Ionicons.glyphMap = 'home';
+          let Icon = Home;
 
-          if (route.name === 'Home') iconName = 'home';
-          else if (route.name === 'AI Help') iconName = 'chatbubble';
-          else if (route.name === 'Profile') iconName = 'person';
-
-          return (
-            <Ionicons
-              name={iconName}
-              size={24}
-              color={focused ? '#1c47d4ff' : 'gray'}
-            />
-          );
+          if (route.name === 'Home') Icon = Home;
+          else if (route.name === 'AI Help') Icon = MessageCircle;
+          else if (route.name === 'Profile') Icon = User;
+          return <Icon size={24} color={focused ? '#1c47d4ff' : 'gray'} />;
         },
         tabBarActiveTintColor: '#1c47d4ff',
         tabBarInactiveTintColor: 'gray',
@@ -49,7 +41,6 @@ function TabNavigator() {
       <Tab.Screen name="Home">
         {() => <HomePage user={user?.email || 'User'} />}
       </Tab.Screen>
-
       <Tab.Screen name="AI Help" component={AIHelpPage} />
       <Tab.Screen name="Profile" component={ProfilePage} />
     </Tab.Navigator>
@@ -63,7 +54,6 @@ export default function AppNavigator() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {/* Bottom Tabs */}
         <Stack.Screen name="MainTabs" component={TabNavigator} />
-
         {/* Stack Pages */}
         <Stack.Screen 
           name="KnowledgeCenter" 
@@ -74,9 +64,9 @@ export default function AppNavigator() {
             headerTitleAlign: 'center',
             headerTitleStyle: styles.headerTitle,
           }}
-        >
-          
+        >   
         </Stack.Screen> 
+
         <Stack.Screen
           name="KnowledgeDetail"
           options={({ route }: any) => ({

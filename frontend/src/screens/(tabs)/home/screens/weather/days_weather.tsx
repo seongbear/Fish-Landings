@@ -16,8 +16,7 @@ import {
 } from 'lucide-react-native';
 // Adjust these imports to match your actual file structure
 import Background from '../../../../../components/background'; 
-import useForecastWeather from '../../hooks/useForecastWeather';
-import { getActivityColor } from '../../hooks/helperFunction';
+import useForecastWeather, { getActivityColor } from '../../hooks/useForecastWeather';
 import { getCurrentLocation } from '../../../../../utils/getCurrentLocation';
 
 const DaysWeather = () => {
@@ -59,7 +58,7 @@ const DaysWeather = () => {
     }
   };
 
-  // 4. Render Item for FlatList
+  // Render Item for FlatList
   const renderItem = ({ item }: { item: typeof forecastList[0] }) => {
     const activityColors = getActivityColor(item.activityScore);
 

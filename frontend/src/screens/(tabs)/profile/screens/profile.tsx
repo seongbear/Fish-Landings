@@ -6,6 +6,7 @@ import CommonCard from '../components/commonCard';
 import { Fish, ChartSpline, Trophy, Calendar, Settings } from 'lucide-react-native';
 import Achievements from '../components/achievements';
 import RecentActivity from '../components/recentActivity';
+import { useUserProfile } from '../hooks/useUserProfile';
 
 interface CommonCardProps {
     icon?: React.ReactNode;
@@ -41,7 +42,7 @@ const commonCardInfo: CommonCardProps[] = [
   }
 ]
 
-export default function ProfilePage() {
+export default function ProfilePage() {  
   const settingPressed = () => {
     // Navigate to settings page
     console.log('Settings button pressed');
@@ -71,7 +72,7 @@ export default function ProfilePage() {
                   ))}
               </View>
               <Achievements />
-              <RecentActivity />
+              {/* <RecentActivity /> */}
               <TouchableOpacity onPress={settingPressed} style={styles.settingButton}>
                 <Settings size={20} color="black" style={{ marginRight: 8 }} />
                 <Text style={styles.settingText}>Settings</Text>

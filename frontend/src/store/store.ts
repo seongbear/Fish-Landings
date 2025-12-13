@@ -76,6 +76,7 @@ onAuthStateChanged(auth, async (user) => {
       await setDoc(docRef, {
         email: user.email,
         createdAt: new Date().toISOString(),
+        id: "Fish-" + user.uid,
       });
     }
     useAppStore.setState({ user });

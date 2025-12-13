@@ -23,7 +23,7 @@ export const calculateFishingScore = (
   waveHeight: number = 0
 ): number => {
     // Start with a base neutral score
-    let score = 100;
+    let score = 70;
 
     // Weather Condition Penalties
     // Thunderstorms (Codes 95, 96, 99) -> Heavy penalty
