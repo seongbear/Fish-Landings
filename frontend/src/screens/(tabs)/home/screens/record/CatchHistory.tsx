@@ -1,10 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
-  StyleSheet, View, Text, FlatList, TouchableOpacity, TextInput, Image, ActivityIndicator 
+  StyleSheet, 
+  View, 
+  Text, 
+  FlatList, 
+  TouchableOpacity, 
+  TextInput,
+  Image, 
+  ActivityIndicator 
 } from 'react-native';
-import { Search, MapPin, Calendar, Weight, Fish, Filter, ArrowLeft } from 'lucide-react-native';
-import { useNavigation } from '@react-navigation/native';
-import auth from '@react-native-firebase/auth';
+import { Search, MapPin, Calendar, Fish } from 'lucide-react-native';
 import Background from '../../../../../components/background';
 import { useFishRecord } from '../../hooks/useFishRecord';
 
