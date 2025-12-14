@@ -21,7 +21,7 @@ export default function HomePageTopContainer({
     onPress,
 }: HomePageTopContainerProps) {
     return (
-        <TouchableOpacity style={styles.outerContainer} onPress={onPress}>
+        <TouchableOpacity style={styles.outerContainer} >
             <LinearGradient
                 colors={gradientColors as any}
                 start={{ x: 0.35, y: 0.35}}

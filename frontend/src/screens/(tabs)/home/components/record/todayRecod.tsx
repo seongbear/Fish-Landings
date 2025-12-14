@@ -1,11 +1,14 @@
 import { Text, View } from 'react-native';
 import HomePageTopContainer from './topContainer';
 import React from 'react';
+import { useFishStats } from '../../../profile/hooks/useFishStats';
 
 export default function TodayRecord() {
+    const { stats } = useFishStats();
     const handlePress = () => {
         console.log("Card pressed!");
     };
+    
     return (
     <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 }}>
         {/* Blue Card - Today's Catch */}
@@ -13,7 +16,7 @@ export default function TodayRecord() {
             <HomePageTopContainer
                 icon={<Text style={{ color: 'white', fontSize: 16 }}>🐟</Text>}
                 title="Today's Catch"
-                description="15.5 kg"
+                description={`${stats.todayWeightSum ?? 0} kg`}
                 gradientColors={['transparent', '#a3d2edff']}
                 chevonRightColor='#2c6cf6ff'
                 onPress={handlePress} 
@@ -25,7 +28,7 @@ export default function TodayRecord() {
             <HomePageTopContainer
                 icon={<Text style={{ color: 'white', fontSize: 16 }}>📈</Text>}
                 title="Total Catch"
-                description="1,250 kg"
+                description={`${stats.totalWeight ?? 0} kg`}
                 gradientColors={['transparent', '#8fe899ff']}
                 chevonRightColor='#34c759ff'
                 onPress={handlePress}
