@@ -5,7 +5,7 @@ import {
   Keyboard, ActivityIndicator, FlatList,
   StatusBar
 } from 'react-native';
-import { X, Fish, MapPin, Weight, LocateFixed, ChevronDown, Save } from 'lucide-react-native';
+import { X, Fish, MapPin, Weight, LocateFixed, ChevronDown, Save, Anchor } from 'lucide-react-native';
 import { useRecordForm } from '../../hooks/useRecordForm';
 import { useFishSpecies } from '../../hooks/useFishSpecies';
 import { SaveFishRecord } from '../../types/fish';
@@ -22,7 +22,6 @@ export const RecordForm: React.FC<RecordFormProps> = ({
   setModalVisible,
 }) => {
     // State to control the Success/Fail popup
-
     const {
         weight,
         setWeight,
@@ -44,6 +43,15 @@ export const RecordForm: React.FC<RecordFormProps> = ({
         setStatusVisible,
         statusType,
         setStatusType,
+        // Gear Type Dropdown
+        gear,
+        setGear,
+        showGearDropdown,
+        setShowGearDropdown,
+        filteredGear,
+        setFilteredGear,
+        selectGear,
+        handleGearChange,
     } = useRecordForm();
 
     const { addFishRecord } = useFishSpecies();
@@ -68,6 +76,7 @@ export const RecordForm: React.FC<RecordFormProps> = ({
         const record: SaveFishRecord = {
             weight: parseFloat(weight),
             species: species,
+            gearType: gear,
             location: locationName,
             lng: coords?.lng,
             lat: coords?.lat,
@@ -171,8 +180,48 @@ export const RecordForm: React.FC<RecordFormProps> = ({
                                     </View>
                                 )}
                             </View>
+
+                            {/* --- Catch Method INPUT --- */}
+                            <View style={[styles.inputGroup, { zIndex: 9 }]}>
+                                <Text style={styles.label}>Catch Method</Text>
+                                <View style={styles.inputWrapper}>
+                                    <Anchor size={18} color="#9CA3AF" style={styles.inputIcon} />
+                                    <TextInput
+                                        placeholder="Type to search..."
+                                        placeholderTextColor="#9CA3AF"
+                                        style={styles.input}
+                                        value={gear}
+                                        onChangeText={handleGearChange}
+                                        onFocus={() => setShowGearDropdown(true)}
+                                    />
+                                    <TouchableOpacity onPress={() => setShowGearDropdown(!showGearDropdown)}>
+                                        <ChevronDown size={16} color="#9CA3AF" />
+                                    </TouchableOpacity>
+                                </View>
+
+                                {/* Method Dropdown */}
+                                {showGearDropdown && (
+                                    <View style={styles.dropdownContainer}>
+                                        <FlatList
+                                            data={filteredGear}
+                                            keyExtractor={(item) => item.name}
+                                            nestedScrollEnabled={true}
+                                            keyboardShouldPersistTaps="handled"
+                                            style={{ maxHeight: 150 }}
+                                            renderItem={({ item }) => (
+                                                <TouchableOpacity 
+                                                    style={styles.dropdownItem}
+                                                    onPress={() => selectGear(item.name)}
+                                                >
+                                                    <Text style={styles.dropdownText}>{item.name}</Text>
+                                                </TouchableOpacity>
+                                            )}
+                                        />
+                                    </View>
+                                )}
+                            </View>
             
-                            {/* --- Location Input (Updated) --- */}
+                            {/* --- Location Input --- */}
                             <View style={styles.inputGroup}>
                                 <Text style={styles.label}>Location</Text>
                                 <View style={styles.inputWrapper}>
@@ -205,6 +254,9 @@ export const RecordForm: React.FC<RecordFormProps> = ({
                                     </Text>
                                 )}
                             </View>
+
+                            {/* --- Catch Method Input --- */}
+                            
             
                             {/* Action Buttons */}
                             <TouchableOpacity style={styles.saveButton} onPress={onSave}>
