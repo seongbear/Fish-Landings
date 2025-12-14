@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient'; // Change to 'react-nativ
 import { MapPin, SquarePen, User } from 'lucide-react-native';
 import { getCurrentLocation } from '../../../../utils/getCurrentLocation';
 import { useUserProfile } from '../hooks/useUserProfile';
+import { useNavigation } from '@react-navigation/native';
 
 export default function ProfileCard() {
   const { profile, loading } = useUserProfile();
@@ -27,6 +28,12 @@ export default function ProfileCard() {
   const memberSince = profile.createdAt
     ? new Date(profile.createdAt).getFullYear()
     : new Date().getFullYear();
+
+  const navigation = useNavigation<any>();
+  const handleEditPress = () => {
+    navigation.navigate('EditProfile');
+  }
+
 
   return (
     <LinearGradient
@@ -70,7 +77,7 @@ export default function ProfileCard() {
         {/* Edit Button (Glass effect) */}
         <TouchableOpacity 
           style={styles.editButton} 
-          onPress={() => console.log('Edit Profile')}
+          onPress={handleEditPress}
         >
           <SquarePen size={20} color="white" />
         </TouchableOpacity>

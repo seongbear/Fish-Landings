@@ -10,6 +10,7 @@ import { useRecordForm } from '../../hooks/useRecordForm';
 import { useFishSpecies } from '../../hooks/useFishSpecies';
 import { SaveFishRecord } from '../../types/fish';
 import { StatusModal } from '../../../../../components/status_modal';
+import { useFishRecord } from '../../hooks/useFishRecord';
 
 interface RecordFormProps {
   modalVisible: boolean;
@@ -46,6 +47,7 @@ export const RecordForm: React.FC<RecordFormProps> = ({
     } = useRecordForm();
 
     const { addFishRecord } = useFishSpecies();
+    const { reload } = useFishRecord();
 
     const handleStatusClose = () => {
         setStatusVisible(false); // Hide the popup
@@ -56,6 +58,8 @@ export const RecordForm: React.FC<RecordFormProps> = ({
         setCoords(null);
         setShowSpeciesDropdown(false);
         setModalVisible(false); // Close the form modal
+        // Reload the catch records list
+        reload();
     };
 
 

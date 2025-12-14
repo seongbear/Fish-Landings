@@ -25,13 +25,17 @@ export const Knowledge: React.FC = () => {
 
     return (
         <View style={styles.KnowledgeContainer}>
+            {/* 1. Header Section */}
             <View style={styles.header}>
                 <View style={styles.headerLeft}>
+                <View style={styles.iconBg}>
                     <Book size={20} color="#4A90E2" />
-                    <Text style={styles.headerText}>Knowledge Center</Text>
                 </View>
-                <TouchableOpacity onPress={onPress}>
-                    <ChevronRight size={20} color="#4A90E2" />
+                <Text style={styles.headerText}>Knowledge Center</Text>
+                </View>
+                
+                <TouchableOpacity onPress={onPress} style={styles.seeAllBtn}>
+                    <ChevronRight size={16} color="#6B7280" />
                 </TouchableOpacity>
             </View>
 
@@ -58,21 +62,32 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         padding: 16,
     },
+    // Header Styles
     header: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: 16,
+        marginBottom: 12,
+        paddingHorizontal: 4, 
     },
     headerLeft: {
         flexDirection: 'row',
         alignItems: 'center',
     },
+    iconBg: {
+        backgroundColor: '#ebf3ffff', // Light Amber
+        padding: 6,
+        borderRadius: 8,
+        marginRight: 8,
+    },
     headerText: {
-        fontSize: 16,
-        fontWeight: '500',
-        color: 'black',
-        marginLeft: 4,
+        fontSize: 18,
+        fontWeight: '700',
+        color: '#111827',
+    },
+    seeAllBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
     },
     grid: {
         flexDirection: 'row',
