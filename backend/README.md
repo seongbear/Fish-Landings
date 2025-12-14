@@ -9,7 +9,6 @@ Flask backend using Firebase Realtime Database + Gemini LLM, served through Uvic
 ```powershell
 cd backend
 pip install -r requirements.txt
-pip install firebase-admin python-dotenv asgiref uvicorn google-genai
 ```
 
 ### 2. Create `.env`
