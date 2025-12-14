@@ -5,13 +5,14 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAppStore } from '../store/store';
 
-import HomePage from '../screens/(tabs)/home/screens/home';
-import ProfilePage from '../screens/(tabs)/profile/screens/profile';
-import AIHelpPage from '../screens/(tabs)/ai_help/screens/aiHelp';
-import { KnowledgeCenterScreen } from '../screens/(tabs)/home/screens/knowledge/knowledge_center';
-import { KnowledgeDetailScreen } from '../screens/(tabs)/home/screens/knowledge/knowledge_detail';
-import DaysWeather from '../screens/(tabs)/home/screens/weather/days_weather';
+import HomePage from '../screens/(tabs)/home/screens/Home';
+import ProfilePage from '../screens/(tabs)/profile/screens/Profile';
+import AIHelpPage from '../screens/(tabs)/ai_help/screens/AiHelp';
+import { KnowledgeCenterScreen } from '../screens/(tabs)/home/screens/knowledge/KnowledgeCenter';
+import { KnowledgeDetailScreen } from '../screens/(tabs)/home/screens/knowledge/KnowledgeDetail';
+import DaysWeather from '../screens/(tabs)/home/screens/weather/DaysWeather';
 import { Home, MessageCircle, User } from 'lucide-react-native';
+import CatchHistory from '../screens/(tabs)/home/screens/record/CatchHistory';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -87,6 +88,17 @@ export default function AppNavigator() {
           options={({ route }: any) => ({
             headerShown: true,
             title: 'Weather Forecast',
+            headerTitleAlign: 'center',
+            headerTitleStyle: styles.headerTitle,
+          })}
+        />
+
+        <Stack.Screen 
+          name="CatchHistory" 
+          component={CatchHistory} 
+          options={({ route }: any) => ({
+            headerShown: true,
+            title: 'Catch History',
             headerTitleAlign: 'center',
             headerTitleStyle: styles.headerTitle,
           })}

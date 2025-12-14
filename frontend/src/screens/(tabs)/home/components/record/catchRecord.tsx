@@ -1,181 +1,144 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
-import { ChevronRight, Calendar, Plus, Cat } from 'lucide-react-native';
+import { StyleSheet, View, Text, TouchableOpacity} from 'react-native';
+import { ChevronRight, Calendar, Plus, X, } from 'lucide-react-native';
 import { CatchItem } from './catchItem';
-
-
-interface CatchRecordProps {
-    id: string;
-    species: string;
-    location: string;
-    date: string;
-    weight: number;
-}
-
-const mockCatchRecords: CatchRecordProps[] = [
-    { id: '1', species: 'Salmon', location: 'North Bay', date: '2024-06-10', weight: 4.5 },
-    { id: '2', species: 'Tuna', location: 'East Harbor', date: '2024-06-12', weight: 7.2 },
-    { id: '3', species: 'Trout', location: 'Lakeview', date: '2024-06-15', weight: 2.3 },
-    { id: '4', species: 'Sardine', location: 'South Bay', date: '2024-06-18', weight: 1.1 },
-];
+import { RecordForm } from './recordForm';
+import { useFishRecord } from '../../hooks/useFishRecord';
+import { useNavigation } from '@react-navigation/native';
 
 export default function CatchRecord() {
-  const [expanded, setExpanded] = useState(false);
-  const [weight, setWeight] = useState('');
-  const [species, setSpecies] = useState('');
-  const [location, setLocation] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
+  const catchRecords = useFishRecord().catchRecords;
+  const navigation = useNavigation<any>();
 
-  const onPressToggle = () => setExpanded(!expanded);
 
-  const onSave = () => {
-    console.log('Saved new catch record:', { weight, species, location });
-    setWeight('');
-    setSpecies('');
-    setLocation('');
-    setExpanded(false);
+  const onSeeAll = () => {
+    navigation.navigate('CatchHistory');
   };
 
-    const onPress = () => {
-        console.log('Navigate to detailed catch records screen');
-    }
-
   return (
-    <View style={{ marginTop: 16 }}>
-         {/* Record New Catch Button */}
-        <TouchableOpacity style={styles.buttonStyle} onPress={onPressToggle}>
-          <Plus size={22} color="white" />
-          <Text style={styles.buttonText}>Record New Catch</Text>
-        </TouchableOpacity>
+    <View style={styles.container}>
 
-        {/* Add New Catch Form */}
-        {expanded && (
-          <View style={styles.catchRecordContainer}>
-            <Text style={styles.formTitle}>New Catch Record</Text>
-
-            <Text style={styles.label}>Weight (kg)</Text>
-            <TextInput
-              placeholder="Enter weight"
-              placeholderTextColor="#999"
-              style={styles.input}
-              keyboardType="numeric"
-              value={weight}
-              onChangeText={setWeight}
-            />
-
-            <Text style={styles.label}>Fish Species</Text>
-            <TextInput
-              placeholder="e.g., Salmon, Tuna"
-              placeholderTextColor="#999"
-              style={styles.input}
-              value={species}
-              onChangeText={setSpecies}
-            />
-
-            <Text style={styles.label}>Location</Text>
-            <TextInput
-              placeholder="e.g., North Bay"
-              placeholderTextColor="#999"
-              style={styles.input}
-              value={location}
-              onChangeText={setLocation}
-            />
-
-            <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginTop: 10 }}>
-              <TouchableOpacity style={[styles.formButton, { backgroundColor: '#4A90E2' }]} onPress={onSave}>
-                <Text style={{ color: 'white', fontSize: 16 }}>Save</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.formButton, { backgroundColor: '#e3e4e5ff' }]} onPress={onPressToggle}>
-                <Text style={{ color: 'black', fontSize: 16 }}>Cancel</Text>
-              </TouchableOpacity>
-            </View>
+      {/* 2. Catch List Card */}
+      <View style={styles.card}>
+        {/* 1. Header Section */}
+      <View style={styles.header}>
+        <View style={styles.headerLeft}>
+          <View style={styles.iconBg}>
+            <Calendar size={18} color="#D97706" />
           </View>
-        )}
-
-        {/* Recent Catches */}
-        <View style={styles.catchRecordContainer}>
-          <View style={styles.header}>
-            <View style={styles.headerLeft}>
-              <Calendar size={20} color="#4A90E2" />
-              <Text style={styles.headerText}>Recent Catches</Text>
-            </View>
-            <TouchableOpacity onPress={onPress}>
-              <ChevronRight size={20} color="#4A90E2" />
-            </TouchableOpacity>
-          </View>
-
-          {/* Render recent catches from mockCatchRecords */}
-        {mockCatchRecords.slice(0, 3).map(record => (
-            <CatchItem key={record.id} {...record} />
-        ))}
+          <Text style={styles.headerText}>Recent Catches</Text>
         </View>
+        
+        <TouchableOpacity onPress={onSeeAll} style={styles.seeAllBtn}>
+            <Text style={styles.seeAllText}>History</Text>
+            <ChevronRight size={16} color="#6B7280" />
+        </TouchableOpacity>
+      </View>
+        {catchRecords.slice(0, 3).map((record, index) => (
+           <View key={record.date.toString()}>
+              <CatchItem {...record} />
+           </View>
+        ))}
+      </View>
+
+      {/* 3. Primary Action Button */}
+      <TouchableOpacity 
+        style={styles.addButton} 
+        activeOpacity={0.8}
+        onPress={() => setModalVisible(true)}
+      >
+        <Plus size={20} color="white" />
+        <Text style={styles.addButtonText}>Log New Catch</Text>
+      </TouchableOpacity>
+
+      {/* --- MODAL FORM --- */}
+      <RecordForm 
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+      />
+
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  catchRecordContainer: {
+  container: {
     marginTop: 16,
-    backgroundColor: '#f5f8fa',
-    borderRadius: 12,
-    padding: 16,
+    marginBottom: 20,
   },
-  buttonStyle: {
-    backgroundColor: '#4A90E2',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: '500',
-    textAlign: 'center',
-  },
+  
+  // Header Styles
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 16,
+    marginBottom: 12,
+    paddingHorizontal: 4, 
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  headerText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: 'black',
-    marginLeft: 4,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
+  iconBg: {
+    backgroundColor: '#FFFBEB', // Light Amber
+    padding: 6,
     borderRadius: 8,
-    padding: 12,
+    marginRight: 8,
+  },
+  headerText: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#111827',
+  },
+  seeAllBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  seeAllText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#6B7280',
+    marginRight: 2,
+  },
+
+  // List Card Styles
+  card: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: 16,
+    // Soft Shadow
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
     marginBottom: 16,
-    fontSize: 14,
   },
-  label: {
-    fontSize: 14,
-    fontWeight: '400',
-    marginBottom: 5,
-    color: 'gray',
+  separator: {
+    height: 1,
+    backgroundColor: '#F3F4F6',
+    marginVertical: 8,
   },
-  formButton: {
+
+  // Main Action Button
+  addButton: {
+    backgroundColor: '#3B82F6', // Blue-500
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 8,
-    width: '45%',
-    paddingVertical: 10,
+    paddingVertical: 14,
+    borderRadius: 12,
+    shadowColor: "#3B82F6",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  formTitle: {
-    fontWeight: '500',
+  addButtonText: {
+    color: 'white',
     fontSize: 16,
-    color: 'black',
-    marginBottom: 16,
+    fontWeight: '600',
+    marginLeft: 8,
   },
 });

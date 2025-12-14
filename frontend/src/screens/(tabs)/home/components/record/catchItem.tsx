@@ -1,20 +1,16 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { FishRecord } from '../../types/fish';
+import { formatDate } from '../../../../../utils/formatDate';
 
-interface CatchItemProps {
-  species: string;
-  location: string;
-  weight: number;
-  date: string;
-}
 
-export const CatchItem: React.FC<CatchItemProps> = ({ species, location, weight, date }) => {
+export const CatchItem: React.FC<FishRecord> = ({ species, location, weight, date }) => {
   return (
     <View style={styles.container}>
       <View style={styles.left}>
         <Text style={styles.species}>{species}</Text>
         <Text style={styles.location}>{location}</Text>
-        <Text style={styles.date}>{date}</Text>
+        <Text style={styles.date}>{formatDate(date.toString())}</Text>
       </View>
       <View style={styles.right}>
         <Text style={styles.weight}>{weight} kg</Text>

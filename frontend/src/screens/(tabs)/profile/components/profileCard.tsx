@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
     },
     name: {
         color: 'white',
-        fontSize: 20,
+        fontSize: 22,
         fontWeight: '800',
         letterSpacing: 0.5,
         marginBottom: 4,
