@@ -1,6 +1,6 @@
-import { firestore } from "../firebaseConfig";
-import { doc, getDoc } from "firebase/firestore";
-import { AchievementProps, ProfileProps } from "../screens/(tabs)/profile/type/profile";
+import { auth, firestore } from "../firebaseConfig";
+import { doc, getDoc, serverTimestamp, updateDoc } from "firebase/firestore";
+import { AchievementProps, EditProfileProps, ProfileProps } from "../screens/(tabs)/profile/type/profile";
 
 
 export const fetchUserProfileById = async (
@@ -49,5 +49,40 @@ export const fetchUserProfileById = async (
   } catch (error) {
     console.error("Error fetching user profile:", error);
     throw error;
+  }
+};
+
+export const editProfileInFirestore = async (
+  name?: string,
+  imageUrl?: string
+): Promise<{ success: boolean; message?: string }> => {
+  try {
+    const userId = auth.currentUser?.uid;
+
+    if (!userId) {
+      return { success: false, message: 'User not authenticated' };
+    }
+
+    // Build update payload dynamically
+    const updateData: Record<string, any> = {
+      updatedAt: serverTimestamp(),
+    };
+
+    if (name !== undefined) updateData.name = name;
+    if (imageUrl !== undefined) updateData.imageUrl = imageUrl;
+
+    // Prevent empty update
+    if (Object.keys(updateData).length === 1) {
+      return { success: false, message: 'No fields to update' };
+    }
+
+    const userRef = doc(firestore, 'users', userId);
+    await updateDoc(userRef, updateData);
+
+    return { success: true };
+
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    return { success: false, message: 'Failed to update profile' };
   }
 };

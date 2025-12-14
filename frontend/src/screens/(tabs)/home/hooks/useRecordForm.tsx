@@ -1,10 +1,8 @@
 
 import * as Location from 'expo-location';
 import { useState } from 'react';
-import { Alert, Keyboard } from 'react-native';
 import { useFishSpecies } from './useFishSpecies';
-
-
+import { Alert, Keyboard } from 'react-native';
 
 export const useRecordForm = () => {
     const [weight, setWeight] = useState('');

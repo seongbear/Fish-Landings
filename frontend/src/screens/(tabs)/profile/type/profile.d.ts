@@ -17,3 +17,8 @@ export interface ProfileProps {
     createdAt: string;
     achievements: AchievementProps;
 }
+
+export interface EditProfileProps {
+    name?: string;
+    imageUrl?: string;
+}

@@ -1,16 +1,26 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity} from 'react-native';
 import { ChevronRight, Calendar, Plus, X, } from 'lucide-react-native';
 import { CatchItem } from './catchItem';
 import { RecordForm } from './recordForm';
 import { useFishRecord } from '../../hooks/useFishRecord';
 import { useNavigation } from '@react-navigation/native';
+import { useFishStats } from '../../../profile/hooks/useFishStats';
 
 export default function CatchRecord() {
   const [modalVisible, setModalVisible] = useState(false);
-  const catchRecords = useFishRecord().catchRecords;
   const navigation = useNavigation<any>();
+  const {catchRecords, reload} = useFishRecord();
+  const {reload: reloadStats} = useFishStats();
 
+  // Use useEffect to listen for when the modal closes
+  useEffect(() => {
+    // If modal just closed (became false), reload the list
+    if (modalVisible === false) {
+      reload();
+      reloadStats();
+    }
+  }, [modalVisible]); // Runs whenever 'modalVisible' changes
 
   const onSeeAll = () => {
     navigation.navigate('CatchHistory');
@@ -21,7 +31,7 @@ export default function CatchRecord() {
 
       {/* 2. Catch List Card */}
       <View style={styles.card}>
-        {/* 1. Header Section */}
+      {/* 1. Header Section */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <View style={styles.iconBg}>
@@ -35,11 +45,14 @@ export default function CatchRecord() {
             <ChevronRight size={16} color="#6B7280" />
         </TouchableOpacity>
       </View>
-        {catchRecords.slice(0, 3).map((record, index) => (
-           <View key={record.date.toString()}>
+        {catchRecords
+          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+          .slice(0, 3)
+          .map((record, index) => (
+            <View key={record.date.toString()}>
               <CatchItem {...record} />
-           </View>
-        ))}
+            </View>
+          ))}
       </View>
 
       {/* 3. Primary Action Button */}

@@ -13,6 +13,8 @@ import { KnowledgeDetailScreen } from '../screens/(tabs)/home/screens/knowledge/
 import DaysWeather from '../screens/(tabs)/home/screens/weather/DaysWeather';
 import { Home, MessageCircle, User } from 'lucide-react-native';
 import CatchHistory from '../screens/(tabs)/home/screens/record/CatchHistory';
+import EditProfile from '../screens/(tabs)/profile/screens/EditProfile';
+import Settings from '../screens/(tabs)/profile/screens/Settings';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -102,6 +104,28 @@ export default function AppNavigator() {
             headerTitleAlign: 'center',
             headerTitleStyle: styles.headerTitle,
           })}
+        />
+
+        <Stack.Screen 
+          name="EditProfile" 
+          component={EditProfile} 
+          options={({ route }: any) => ({
+            headerShown: true,
+            title: 'Edit Profile',
+            headerTitleAlign: 'center',
+            headerTitleStyle: styles.headerTitle,
+          })}
+        />
+
+        <Stack.Screen 
+          name="Settings" 
+          component={Settings}
+          options={{
+            headerShown: true,
+            title: 'Settings',
+            headerTitleAlign: 'center',
+            headerTitleStyle: styles.headerTitle,
+          }}
         />
       </Stack.Navigator>
     </NavigationContainer>

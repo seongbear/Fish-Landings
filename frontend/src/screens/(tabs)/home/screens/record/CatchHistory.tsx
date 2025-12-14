@@ -12,6 +12,7 @@ import {
 import { Search, MapPin, Calendar, Fish } from 'lucide-react-native';
 import Background from '../../../../../components/background';
 import { useFishRecord } from '../../hooks/useFishRecord';
+import { formatDate } from '../../../../../utils/formatDate';
 
 // Types
 interface CatchRecord {
@@ -68,7 +69,7 @@ export default function CatchHistory() {
                 <View style={styles.row}>
                     <Calendar size={12} color="#9CA3AF" />
                     <Text style={styles.dateText}>
-                        {dateObj.toLocaleDateString()}
+                        {formatDate(item.date)}
                     </Text>
                 </View>
             </View>
@@ -235,6 +236,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#DCFCE7',
+    width: 65,
+    height: 55,
   },
   weightValue: { fontSize: 16, fontWeight: '700', color: '#15803D' },
   weightUnit: { fontSize: 10, color: '#15803D', fontWeight: '600' },

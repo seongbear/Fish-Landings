@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
-import { ProfileProps } from "../type/profile";
-import { fetchUserProfileById } from "../../../../api/userApi";
+import { useCallback, useEffect, useState } from "react";
+import { EditProfileProps, ProfileProps } from "../type/profile";
+import { editProfileInFirestore, fetchUserProfileById } from "../../../../api/userApi";
 import { useAuth } from "../../../Auth/AuthContext";
+import { useFocusEffect } from "@react-navigation/native";
 
 export const useUserProfile = () => {
     const { userId } = useAuth();
@@ -9,46 +10,63 @@ export const useUserProfile = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        // Guard clause: Don't fetch if no ID is provided
+    const loadUserProfile = useCallback(async () => {
         if (!userId) {
             setLoading(false);
             return;
         }
 
-        let isMounted = true;
-
-        async function loadUserProfile() {
-            setLoading(true);
+        try {
+            const response = await fetchUserProfileById(userId);
+            setProfile(response);
             setError(null);
-            
-            try {
-                // Simulate fetching user profile data
-                const response = await fetchUserProfileById(userId as string);
-                
-                if (isMounted) {
-                    setProfile(response);
-                }
-            } catch (err) {
-                if (isMounted) {
-                    console.error("Error loading profile:", err);
-                    setError(err instanceof Error ? err.message : "Failed to load profile");
-                }
-            } finally {
-                if (isMounted) {
-                    setLoading(false);
-                }
-            }
+        } catch (err) {
+            console.error("Error loading profile:", err);
+            setError(err instanceof Error ? err.message : "Failed to load profile");
+        } finally {
+            setLoading(false);
         }
+    }, [userId]);
 
-        loadUserProfile();
+    useFocusEffect(
+        useCallback(() => {
+            loadUserProfile();
+        }, [loadUserProfile])
+    );
+    
+    return { profile, loading, error, refetch: loadUserProfile };
+};
 
-        // Cleanup function to prevent state updates if component unmounts
-        return () => {
-            isMounted = false;
-        };
-    }, [userId]); // Re-run effect if userId changes
+export const useEditProfile = () => {
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-    // Return the state so the component can use it
-    return { profile, loading, error };
-}
+  const editProfile = async (name?: string, imageUrl?: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const result = await editProfileInFirestore(name, imageUrl);
+
+      if (!result.success) {
+        throw new Error(result.message);
+      }
+
+      setSuccess(true);
+      return true;
+    } catch (err: any) {
+      setError(err.message || 'Failed to update profile');
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return {
+    editProfile,
+    loading,
+    success,
+    error,
+  };
+};
