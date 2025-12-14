@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { Wind, Droplets, Eye, Waves, Sunrise, Sunset } from 'lucide-react-native';
+import { Wind, Droplets, Eye, Waves, Sunrise, Sunset, MapPin, Circle } from 'lucide-react-native';
 
 // Custom Components & Hooks
 import { WeatherBox } from './weatherBox';
@@ -44,6 +43,7 @@ export const Weather: React.FC = () => {
     windSpeed: currentWeather.windSpeed,
     visibility: currentWeather.visibility,
     waveHeight: currentWeather.waveHeight,
+    weatherCode: currentWeather.code,
   }), [currentWeather]);
 
   const navigation = useNavigation<any>();
@@ -70,7 +70,7 @@ export const Weather: React.FC = () => {
           {/* Location & Temp */}
           <View style={styles.headerInfoColumn}>
             <View style={styles.locationRow}>
-              <Ionicons name="location-sharp" size={16} color="#fff" />
+              <MapPin size={16} color="#fff" />
               <Text style={styles.locationText}>{location?.city || 'Unknown'}</Text>
             </View>
             
@@ -78,7 +78,7 @@ export const Weather: React.FC = () => {
             <Text style={styles.conditionText}>{currentWeather.condition}</Text>
             
             <View style={[styles.fishingBadge, { backgroundColor: fishingCondition.color }]}>
-              <Ionicons name="ellipse" size={12} color="white" />
+              <Circle size={12} color="white" />
               <Text style={styles.fishingText}> {fishingCondition.label} for Fishing</Text>
             </View>
           </View>
@@ -200,6 +200,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingHorizontal: 12,
     paddingVertical: 6,
+    borderColor: '#fff',
+    borderWidth: 2,
   },
   fishingText: {
     color: '#fff',

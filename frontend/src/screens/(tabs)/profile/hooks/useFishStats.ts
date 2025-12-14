@@ -13,7 +13,8 @@ export const useFishStats = () => {
                 totalCatches: 0,
                 totalWeight: "0",
                 bestCatch: "0",
-                daysActive: 0
+                daysActive: 0,
+                todayWeightSum: 0
             };
         }
 
@@ -38,11 +39,19 @@ export const useFishStats = () => {
         }));
         const daysActive = uniqueDates.size;
 
+        // E. Today Catch 
+        const today = new Date().toDateString(); // "Mon Jan 01 2024"
+        const todayCatch = catchRecords.filter(r => r.date instanceof Date ? r.date.toDateString() === today : new Date(r.date).toDateString() === today);
+        const todayWeightSum = todayCatch.reduce((total, record) => {
+            return total + (Number(record.weight) || 0);
+        }, 0);
+
         return {
             totalCatches,
             totalWeight,
             bestCatch,
-            daysActive
+            daysActive,
+            todayWeightSum
         };
     }, [catchRecords]); 
 

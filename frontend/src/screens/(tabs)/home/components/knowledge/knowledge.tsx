@@ -4,13 +4,6 @@ import { useNavigation } from '@react-navigation/native';
 import { View, StyleSheet, Text, TouchableOpacity, Image } from 'react-native';
 import { useArticleList } from '../../hooks/useArticle';
 
-interface KnowledgeProps {
-    id: number;
-    image: any; // Image source
-    title: string;
-    description: string;
-}
-
 export const Knowledge: React.FC = () => {
     const navigation = useNavigation<any>();
     const knowledgeData = useArticleList();

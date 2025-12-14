@@ -6,23 +6,13 @@ import {
   FlatList, 
   TouchableOpacity, 
   TextInput,
-  Image, 
   ActivityIndicator 
 } from 'react-native';
-import { Search, MapPin, Calendar, Fish } from 'lucide-react-native';
+import { Search, MapPin, Calendar, Wrench, Fish } from 'lucide-react-native';
 import Background from '../../../../../components/background';
 import { useFishRecord } from '../../hooks/useFishRecord';
 import { formatDate } from '../../../../../utils/formatDate';
-
-// Types
-interface CatchRecord {
-  id: string;
-  species: string;
-  weight: number;
-  location: string;
-  date: any; // Firestore Timestamp
-  imageUrl?: string;
-}
+import { FishRecord } from '../../types/fish';
 
 export default function CatchHistory() {
     const {catchRecords, loading}= useFishRecord();
@@ -30,37 +20,49 @@ export default function CatchHistory() {
     const [filterType, setFilterType] = useState<'All' | 'Heaviest' | 'Recent'>('All');
 
     // Filter Logic
-    const filteredData = catchRecords.filter(item => 
-        item.species.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.location.toLowerCase().includes(searchQuery.toLowerCase())
-    ).sort((a, b) => {
+    const filteredData = catchRecords.filter(item => {
+        const query = searchQuery.toLowerCase();
+        
+        // specific safeguards for each field
+        const speciesMatch = (item.species || '').toLowerCase().includes(query);
+        const locationMatch = (item.location || '').toLowerCase().includes(query);
+        // Note: You might have saved it as 'catchMethod' in Firestore, check your field name!
+        const gearMatch = (item.gearType || '').toLowerCase().includes(query);
+
+        return speciesMatch || locationMatch || gearMatch;
+    }).sort((a, b) => {
         if (filterType === 'Heaviest') return b.weight - a.weight;
-        return 0; // Default is already sorted by date from Firestore
+        // Ensure date exists before sorting
+        if (filterType === 'Recent') {
+            const dateA = new Date(a.date).getTime();
+            const dateB = new Date(b.date).getTime();
+            return dateB - dateA;
+        }
+        return 0; 
     });
 
-    const renderItem = ({ item }: { item: CatchRecord }) => {
+    const renderItem = ({ item }: { item: FishRecord }) => {
         // Handle Firestore Timestamp conversion safely
-        const dateObj = item.date?.toDate ? item.date.toDate() : new Date();
-
         return (
         <View
             style={styles.card} 
         >
             {/* Left: Image or Icon */}
             <View style={styles.imageContainer}>
-            {item.imageUrl ? (
-                <Image source={{ uri: item.imageUrl }} style={styles.fishImage} />
-            ) : (
                 <View style={styles.placeholderIcon}>
                 <Fish size={24} color="#3B82F6" />
                 </View>
-            )}
             </View>
 
             {/* Center: Details */}
             <View style={styles.cardContent}>
                 <Text style={styles.speciesText}>{item.species}</Text>
-                
+
+                <View style={styles.row}>
+                    <Wrench size={12} color="#9CA3AF" />
+                    <Text style={styles.locationText} numberOfLines={1}>{item.gearType}</Text>
+                </View>
+
                 <View style={styles.row}>
                     <MapPin size={12} color="#9CA3AF" />
                     <Text style={styles.locationText} numberOfLines={2}>{item.location}</Text>
@@ -91,7 +93,7 @@ export default function CatchHistory() {
             <View style={styles.searchBar}>
                 <Search size={18} color="#9CA3AF" />
                 <TextInput 
-                    placeholder="Search species or location..."
+                    placeholder="Search"
                     style={styles.searchInput}
                     value={searchQuery}
                     onChangeText={setSearchQuery}
@@ -119,9 +121,9 @@ export default function CatchHistory() {
             <ActivityIndicator size="large" color="#3B82F6" style={{ marginTop: 40 }} />
         ) : (
             <FlatList
-                data={filteredData as CatchRecord[]}
+                data={filteredData as FishRecord[]}
                 renderItem={renderItem}
-                keyExtractor={item => item.id}
+                keyExtractor={item => item.createdAt?.getTime().toString() || Math.random().toString()}
                 contentContainerStyle={styles.listContent}
                 showsVerticalScrollIndicator={false}
                 ListEmptyComponent={
@@ -223,6 +225,7 @@ const styles = StyleSheet.create({
   
   cardContent: { flex: 1 },
   speciesText: { fontSize: 16, fontWeight: '700', color: '#1F2937', marginBottom: 4, marginRight: 8 },
+  gearTypeText: { fontSize: 14, fontWeight: '500', color: '#4B5563', marginBottom: 6, marginRight: 8 },
   row: { flexDirection: 'row', alignItems: 'center', marginBottom: 2, marginRight: 8 },
   locationText: { fontSize: 13, color: '#6B7280', marginLeft: 4, marginRight: 8 },
   dateText: { fontSize: 12, color: '#9CA3AF', marginLeft: 4 },

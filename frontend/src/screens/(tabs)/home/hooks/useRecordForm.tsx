@@ -3,23 +3,31 @@ import * as Location from 'expo-location';
 import { useState } from 'react';
 import { useFishSpecies } from './useFishSpecies';
 import { Alert, Keyboard } from 'react-native';
+import { useGearType } from './useGearType';
 
 export const useRecordForm = () => {
     const [weight, setWeight] = useState('');
     const [species, setSpecies] = useState('');
     const [locationName, setLocationName] = useState('');
     const [coords, setCoords] = useState<{lat: number, lng: number} | null>(null);
+    const [gear, setGear] = useState('');
     const [isLocating, setIsLocating] = useState(false);
     const { fishSpeciesList } = useFishSpecies();
+    const { gearTypeList: gearList } = useGearType();
 
     // Status State
     const [statusVisible, setStatusVisible] = useState(false);
     const [statusType, setStatusType] = useState<'success' | 'error'>('success');
 
-    // Dropdown State
+    // Dropdown State for Species
     const [showSpeciesDropdown, setShowSpeciesDropdown] = useState(false);
     const [filteredSpecies, setFilteredSpecies] = useState(fishSpeciesList);
 
+    // Dropdown State for Gear Types
+    const [showGearDropdown, setShowGearDropdown] = useState(false);
+    const [filteredGear, setFilteredGear] = useState(gearList);
+
+    // Handlers
     const handleSpeciesChange = (text: string) => {
         setSpecies(text); // Always update the input text
         if (text) {
@@ -37,6 +45,26 @@ export const useRecordForm = () => {
     const selectSpecies = (item: string) => {
         setSpecies(item);
         setShowSpeciesDropdown(false);
+        Keyboard.dismiss();
+    };
+
+    const handleGearChange = (text: string) => {
+        setGear(text); // Always update the input text
+        if (text) {
+            const filtered = gearList.filter(item => 
+                item.name.toLowerCase().includes(text.toLowerCase())
+            );
+            setFilteredGear(filtered);
+            setShowGearDropdown(filtered.length > 0); 
+        } else {
+            setFilteredGear(gearList);
+            setShowGearDropdown(false);
+        }
+    };
+
+    const selectGear = (item: string) => {
+        setGear(item);
+        setShowGearDropdown(false);
         Keyboard.dismiss();
     };
 
@@ -82,24 +110,34 @@ export const useRecordForm = () => {
             }
     };
     
-    
     return {
         weight,
         setWeight,
-        species,
-        setSpecies,
-        setShowSpeciesDropdown,
-        handleSpeciesChange,
         locationName,
         setLocationName,
         coords,
         setCoords,
         isLocating,
         setIsLocating,
+        // Species Dropdown
+        species,
+        setSpecies,
         showSpeciesDropdown,
+        setShowSpeciesDropdown,
+        handleSpeciesChange,
         filteredSpecies,
         setFilteredSpecies,
         selectSpecies,
+        // Gear Type Dropdown
+        gear,
+        setGear,
+        showGearDropdown,
+        setShowGearDropdown,
+        filteredGear,
+        setFilteredGear,
+        selectGear,
+        handleGearChange,
+        // handle Get Location
         handleGetCurrentLocation,
         // Status
         statusVisible,
