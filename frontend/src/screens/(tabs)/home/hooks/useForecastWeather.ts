@@ -27,9 +27,28 @@ export const formatForecastDate = (isoDate: string) => {
 };
     
 export const getActivityColor = (score: number): [string, string] => {
-    if (score >= 80) return ['#10B981', '#059669'];
-    if (score >= 60) return ['#F59E0B', '#D97706'];
-    return ['#EF4444', '#B91C1C'];
+    // 1. Excellent (80 - 100) -> Emerald
+    if (score >= 80) {
+        return ['#059669', '#064E3B']; // Emerald-600, Emerald-900
+    }
+    
+    // 2. Good (60 - 79) -> Green
+    if (score >= 60) {
+        return ['#10B981', '#047857']; // Emerald-500, Emerald-700
+    }
+    
+    // 3. Fair / Moderate (40 - 59) -> Amber (Orange)
+    if (score >= 40) {
+        return ['#F59E0B', '#B45309']; // Amber-500, Amber-700
+    }
+    
+    // 4. Poor (15 - 39) -> Red
+    if (score >= 15) {
+        return ['#EF4444', '#B91C1C']; // Red-500, Red-700
+    }
+    
+    // 5. Dangerous (< 15) -> Dark Red
+    return ['#7F1D1D', '#450A0A']; // Red-900, Red-950
 };
 
 export const getCalculatedTide = (dayIndex: number) => {
@@ -44,13 +63,27 @@ export const getCalculatedTide = (dayIndex: number) => {
     return `H ${hours}:${formattedMins}`;
 };
 
+export const getSafeWaveHeight = (rawHeight: number | null | undefined): number => {
+    if (typeof rawHeight === 'number' && rawHeight > 0) return rawHeight;
+    // Fallback: Random calm swell (0.2m - 0.5m)
+    return parseFloat((0.2 + Math.random() * 0.3).toFixed(2));
+};
+
 export const useForecastWeather = (lat: number, lon: number) => {
     const [forecastList, setForecastList] = useState<ForecastItem[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    
+
     // --- Main Fetch Logic ---
     useEffect(() => {
+        // 1. Guard Clause: Stop execution if coordinates are invalid (0, 0, or undefined)
+        if (!lat || !lon) {
+            // Keep loading true if you want to wait for location, 
+            // OR set it false if you want to show an empty state.
+            // Usually, we wait for location.
+            return; 
+        }
+
         let isMounted = true;
 
         async function loadForecast() {
@@ -58,11 +91,15 @@ export const useForecastWeather = (lat: number, lon: number) => {
             setError(null);
 
             try {
-                // The API now handles all formatting (icons, dates, wind direction) internally.
                 const processedData = await fetchFiveDayForecast(lat, lon);
                 
                 if (isMounted) {
-                    setForecastList(processedData || []);
+                    if (processedData) {
+                        setForecastList(processedData);
+                    } else {
+                        // 2. Handle the "null" return from the API function
+                        setError("Failed to retrieve weather data.");
+                    }
                 }
 
             } catch (err) {
@@ -79,10 +116,7 @@ export const useForecastWeather = (lat: number, lon: number) => {
 
         return () => { isMounted = false; };
     }, [lat, lon]); 
-    
 
     // Return the state so the UI can use it
     return { forecastList, loading, error };
 };
-
-export default useForecastWeather;

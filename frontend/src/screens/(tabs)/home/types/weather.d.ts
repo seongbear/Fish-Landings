@@ -50,17 +50,19 @@ export interface CurrentWeather {
 }
 
 // types/weather.ts
-
 export interface ForecastItem {
   id: string;
   day: string;          // e.g., "Fri"
   date: string;         // e.g., "12 Dec"
   temp: string;         // e.g., "26°"
   icon: string;         // Lucide icon name: 'sun', 'cloud', 'rain', etc.
-  activityScore: number;// 0-100
   wind: string;         // e.g., "12 km/h"
   windDir: string;      // e.g., "NE"
   wave: string;         // e.g., "0.5m"
   tide: string;         // e.g., "H 09:00" (Mocked if API doesn't provide)
   moon: string;         // e.g., "moon-full"
+  windSpeed?: number;
+  waveHeight?: number;
+  visibility?: number;
+  code?: number;
 }
