@@ -10,10 +10,11 @@ import AIHelpPage from '../screens/(tabs)/ai_help/screens/AiHelp';
 import { KnowledgeCenterScreen } from '../screens/(tabs)/home/screens/knowledge/KnowledgeCenter';
 import { KnowledgeDetailScreen } from '../screens/(tabs)/home/screens/knowledge/KnowledgeDetail';
 import DaysWeather from '../screens/(tabs)/home/screens/weather/DaysWeather';
-import { Home, MessageCircle, User } from 'lucide-react-native';
+import { ChartColumnBig, Home, MessageCircle, User } from 'lucide-react-native';
 import CatchHistory from '../screens/(tabs)/home/screens/record/CatchHistory';
 import EditProfile from '../screens/(tabs)/profile/screens/EditProfile';
 import Settings from '../screens/(tabs)/profile/screens/Settings';
+import DashboardPage from '../screens/(tabs)/dashboard/screens/dashboard';
 import ProfilePage from '../screens/(tabs)/profile/screens/profile';
 
 const Tab = createBottomTabNavigator();
@@ -35,6 +36,7 @@ function TabNavigator() {
           if (route.name === 'Home') Icon = Home;
           else if (route.name === 'AI Help') Icon = MessageCircle;
           else if (route.name === 'Profile') Icon = User;
+          else if (route.name === 'Dashboard') Icon = ChartColumnBig;
           return <Icon size={24} color={focused ? '#1c47d4ff' : 'gray'} />;
         },
         tabBarActiveTintColor: '#1c47d4ff',
@@ -45,6 +47,7 @@ function TabNavigator() {
         {() => <HomePage user={user?.email || 'User'} />}
       </Tab.Screen>
       <Tab.Screen name="AI Help" component={AIHelpPage} />
+      <Tab.Screen name="Dashboard" component={DashboardPage} />
       <Tab.Screen name="Profile" component={ProfilePage} />
     </Tab.Navigator>
   );

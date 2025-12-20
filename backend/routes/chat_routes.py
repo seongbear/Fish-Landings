@@ -9,7 +9,6 @@ import time
 chat_bp = Blueprint("chat_bp", __name__)
 
 # --- Helper Functions ---
-
 def save_msg(user_id: str, session_id: str, role: str, text: str):
     db.reference(f"chats/{user_id}/{session_id}/messages").push({
         "role": role,
