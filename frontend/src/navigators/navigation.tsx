@@ -6,7 +6,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAppStore } from '../store/store';
 
 import HomePage from '../screens/(tabs)/home/screens/Home';
-import ProfilePage from '../screens/(tabs)/profile/screens/Profile';
 import AIHelpPage from '../screens/(tabs)/ai_help/screens/AiHelp';
 import { KnowledgeCenterScreen } from '../screens/(tabs)/home/screens/knowledge/KnowledgeCenter';
 import { KnowledgeDetailScreen } from '../screens/(tabs)/home/screens/knowledge/KnowledgeDetail';
@@ -15,6 +14,7 @@ import { Home, MessageCircle, User } from 'lucide-react-native';
 import CatchHistory from '../screens/(tabs)/home/screens/record/CatchHistory';
 import EditProfile from '../screens/(tabs)/profile/screens/EditProfile';
 import Settings from '../screens/(tabs)/profile/screens/Settings';
+import ProfilePage from '../screens/(tabs)/profile/screens/profile';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
