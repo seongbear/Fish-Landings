@@ -8,9 +8,6 @@ import {
   StyleSheet,
   ActivityIndicator,
   Image,
-  Modal,
-  FlatList,
-  SafeAreaView,
   Alert
 } from 'react-native';
 import Background from '../../../../components/background'; // Your custom background
@@ -40,7 +37,7 @@ export const Forecast = () => {
     });
 
     // 2. Custom Hook for Logic
-    const { loading, prediction, explanation, generateForecast } = useForecast();
+    const { loading, prediction, explanation, llmExplanation, generateForecast } = useForecast();
 
     // 3. Modal Picker State
     const [modalVisible, setModalVisible] = useState(false);
@@ -161,7 +158,7 @@ export const Forecast = () => {
               </View>
 
               {/* Explanation / XAI */}
-              {explanation && (
+              {explanation  && llmExplanation && (
                 <View>
                   <Text style={styles.resultsHeader}>Analysis</Text>
                   
@@ -199,6 +196,14 @@ export const Forecast = () => {
                       style={styles.wideChartImage}
                       resizeMode="contain"
                     />
+                  </View>
+
+                  {/* LLM Explanation */}
+                  <View style={styles.card}>
+                    <Text style={styles.chartTitle}>Explanation</Text>
+                    <Text style={{ fontSize: 14, color: '#444', lineHeight: 20 }}>
+                      {llmExplanation}
+                    </Text>
                   </View>
                 </View>
               )}

@@ -36,16 +36,16 @@ GEAR_MAP = {
 # --- HELPER: Prompt Constructor (REQUIRED) ---
 def construct_fisherman_prompt(prediction, drivers, raw_input):
     """
-    Builds a prompt with decoded values (Strings instead of Integers).
+    Builds a prompt with decoded values (Strings instead of Integers) and scientific context.
     """
     
-    # --- HELPER: Value Decoder ---
+    # --- INTERNAL HELPER: Value Decoder ---
     def get_readable_value(key, value):
-        # Ensure we are comparing integers
+        # Try to convert to int for lookup, otherwise return as is
         try:
             val_int = int(value)
         except (ValueError, TypeError):
-            return value # Return original if it's already a string or issue
+            return value 
 
         if key == 'species':
             return SPECIES_MAP.get(val_int, f"Species #{val_int}")
@@ -53,56 +53,69 @@ def construct_fisherman_prompt(prediction, drivers, raw_input):
             return STATE_MAP.get(val_int, f"State #{val_int}")
         elif key == 'gear_type':
             return GEAR_MAP.get(val_int, f"Gear #{val_int}")
-        return value # Return original for other fields (Temp, Rainfall, etc.)
+        return value 
 
     # 1. Format SHAP Drivers (The "Why")
     drivers_text = ""
     for driver in drivers:
-        feature_name = driver.get('feature', '').lower() # normalize key
-        raw_val = driver.get('value')
+        # Robustly get feature name (handles 'feature' or 'name' keys)
+        feat_raw = driver.get('feature', driver.get('name', 'Unknown Factor'))
+        feature_name = str(feat_raw).lower() 
         
-        # Decode the value if it's a category
+        raw_val = driver.get('value', 'N/A')
         readable_val = get_readable_value(feature_name, raw_val)
         
-        impact = "HELPED increase" if driver.get('shap_value', 0) > 0 else "LOWERED"
+        # Determine Impact Direction (Logic: SHAP > 0 = Good for catch)
+        shap = driver.get('shap_value', 0)
+        if shap > 0:
+            impact_desc = "POSITIVE (Increases Catch)"
+        elif shap < 0:
+            impact_desc = "NEGATIVE (Decreases Catch)"
+        else:
+            impact_desc = "NEUTRAL"
+
         drivers_text += (
-            f"- {driver.get('feature')}: {readable_val} "
-            f"({impact} the catch)\n"
+            f"- Factor: {feat_raw}\n"
+            f"  Value: {readable_val}\n"
+            f"  Effect: {impact_desc}\n"
         )
 
     # 2. Format Raw Inputs (The "Context")
+    # We filter out 'prediction', 'id', etc. to avoid redundancy in the prompt
     context_text = ""
+    excluded_keys = ['id', 'created_at', 'prediction', 'shap_values']
+    
     for key, value in raw_input.items():
-        if key not in ['id', 'created_at']: 
-            # Decode the value here too
+        if key not in excluded_keys: 
             readable_val = get_readable_value(key, value)
-            
             formatted_key = key.replace('_', ' ').title()
             context_text += f"- {formatted_key}: {readable_val}\n"
 
-    # 3. The Prompt Template (Unchanged)
+    # 3. The Prompt Template
     prompt = f"""
-    You are a helpful fisheries expert assistant for fishermen in Malaysia.
+    You are a wise and friendly fisheries scientist assisting fishermen in Malaysia.
     
-    TASK:
-    Explain the fish catch forecast below in simple, encouraging language.
-    
-    DATA:
+    YOUR GOAL:
+    Explain the forecasted fish catch volume by connecting the environmental data to fish behavior. Use simple scientific reasoning (e.g., how water temperature affects fish hunger, or how wind affects boat stability/water mixing).
+
+    THE FORECAST DATA:
     ----------------
-    **Prediction:** {prediction:.2f} Tonnes
+    **Predicted Catch:** {prediction:.5f} Tonnes
     
-    **Context (Conditions):**
+    **Trip Conditions:**
     {context_text}
     
-    **Key Factors Driving this Result:**
+    **Top Influencing Factors (Why the model predicted this):**
     {drivers_text}
     ----------------
 
     GUIDELINES:
-    1. Start with "Based on the conditions in [State/Location]..."
-    2. Explicitly mention the Species and Gear Type if they appear in the Key Factors.
-    3. Explain the reasoning simply.
-    
-    Write the explanation now:
+    1. Keep it under 300 words.
+    2. Use simple English.
+    3. Start directly with the result (e.g., "Good catch expected..." or "Catch might be low...").
+    4. Mention the main reason briefly (e.g., "due to warm water" or "because wind is strong").
+    5. Do not use technical terms or complex sentences.
+
+    Write the short summary now:
     """
     return prompt

@@ -110,3 +110,40 @@ export const postSHAPExplain = async (payload: ForecastPayload) =>{
     throw error;
   }
 }
+
+export const postLLMExplain = async (
+  prediction: number,
+  drivers: Array<[string, number]>,
+  raw_input: ForecastPayload
+) => {
+  try {
+    // ✅ FIX: Correct spelling from "llm_explaination" to "llm_explanation"
+    const response = await fetch(`${API_BASE_URL}/forecast/llm_explanation`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      // Ensure specific keys match what Python expects
+      body: JSON.stringify({ prediction, drivers, raw_input }),
+    });
+
+    // Error handling wrapper to catch non-JSON responses (like 404/500 HTML pages)
+    const text = await response.text();
+    try {
+        const result = JSON.parse(text);
+        if (!response.ok) {
+            throw new Error(result.error || `HTTP error! status: ${response.status}`);
+        }
+        console.log("LLM explanation result:", result.explanation);
+        return result.explanation;
+    } catch (e) {
+        // This prints the actual HTML if the server crashes, helping you debug
+        console.error("Server returned non-JSON response:", text); 
+        throw new Error(`Server Error: ${response.status} ${response.statusText}`);
+    }
+
+  } catch (error) {
+    console.error("Error posting LLM explain request:", error);
+    throw error;
+  }
+}
