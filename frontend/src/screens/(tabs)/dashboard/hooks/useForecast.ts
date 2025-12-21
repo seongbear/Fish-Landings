@@ -114,7 +114,7 @@ export const useForecast = () => {
         loading,
         prediction,
         explanation,
-        llmExplanation, // Export new state
+        llmExplanation, 
         error,
         generateForecast,
         resetForecast
