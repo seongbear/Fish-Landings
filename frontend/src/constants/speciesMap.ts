@@ -1,0 +1,17 @@
+export const SPECIES_DATA: { label: string; value: number }[] = [
+    { label: 'Alu-Alu / Kacang-Kacang', value: 1.0 },
+    { label: 'Ketam Laut', value: 2.0 },
+    { label: 'Bawal Putih', value: 3.0 },
+    { label: 'Kerisi Bali', value: 4.0 },
+    { label: 'Biji Nangka', value: 5.0 },
+    { label: 'Kerisi', value: 6.0 },
+    { label: 'Kayu / Tongkol / Aya Hitam', value: 7.0 },
+    { label: 'Bawal Hitam', value: 8.0 },
+    { label: 'Gelama Tengkerong', value: 9.0 },
+    { label: 'Selar', value: 10.0 },
+    { label: 'Sebelah', value: 11.0 },
+    { label: 'Tenggiri', value: 12.0 },
+    { label: 'Selar Kuning', value: 13.0 },
+    { label: 'Siakap', value: 14.0 },
+    { label: 'Yu (Shark)', value: 15.0 },
+] 

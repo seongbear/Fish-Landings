@@ -1,0 +1,16 @@
+export const GEAR_DATA: { label: string; value: number }[] = [
+    { label: 'Anchovy Purse Seines', value: 1.0 },
+    { label: 'Bag Nets', value: 2.0 },
+    { label: 'Barrier Nets', value: 3.0 },
+    { label: 'Drift/Gill Nets', value: 4.0 },
+    { label: 'Fish Purse Seines', value: 5.0 },
+    { label: 'Hooks & Lines', value: 6.0 },
+    { label: 'Lift Nets', value: 7.0 },
+    { label: 'Miscellaneous', value: 8.0 },
+    { label: 'Other Seines', value: 9.0 },
+    { label: 'Portable Traps', value: 10.0 },
+    { label: 'Push/Scoop Nets', value: 11.0 },
+    { label: 'Shellfish Collection', value: 12.0 },
+    { label: 'Stationary Traps', value: 13.0 },
+    { label: 'Trawl Nets', value: 14.0 },
+]

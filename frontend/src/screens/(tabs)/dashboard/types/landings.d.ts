@@ -14,3 +14,17 @@ export interface LandingData {
     uv_index: number;
     date: string;
 }
+
+export interface ForecastPayload {
+    species: number;
+    state: number;
+    gear_type: number;
+    year: number;
+    month: number;
+    temperature: number;
+    pressure: number;
+    dew_point: number;
+    humidity: number;
+    wind_speed: number;
+    uv_index: number;
+}

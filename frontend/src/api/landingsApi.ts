@@ -1,4 +1,4 @@
-import { LandingData } from "../screens/(tabs)/dashboard/types/landings";
+import { ForecastPayload, LandingData } from "../screens/(tabs)/dashboard/types/landings";
 import { useAppStore } from "../store/store";
 
 const API_BASE_URL = process.env.API_BASE;
@@ -54,3 +54,59 @@ export const getLandingsData = async (
 
   return allData;
 };
+
+export const postForecastLandings = async (payload: ForecastPayload): Promise<number> =>{
+  try{
+    const response = await fetch(`${API_BASE_URL}/forecast/predict`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const result = await response.json();
+    
+    // 3. Optional: Runtime validation to ensure prediction actually exists
+    if (typeof result.predicted_landings !== 'number') {
+        throw new Error("Invalid response format: 'predicted_landings' field is missing or not a number");
+    }
+
+    console.log("Forecast prediction result:", result);
+    return result.predicted_landings;
+  } catch (error) {
+    console.error("Error posting forecast landings:", error);
+    throw error;
+  }
+}
+
+export const postSHAPExplain = async (payload: ForecastPayload) =>{
+  try{
+    const response = await fetch(`${API_BASE_URL}/forecast/explain`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    console.log("SHAP explanation result:", result.base_value, result.top_3_drivers);
+    // Return the specific fields we need for the UI
+    return {
+      base_value: result.base_value,
+      drivers: result.top_3_drivers,
+      waterfall: result.waterfall_plot, // Base64 string
+      force: result.force_plot          // Base64 string
+    };
+
+  } catch (error) {
+    console.error("Error posting SHAP explain request:", error);
+    throw error;
+  }
+}

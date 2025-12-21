@@ -1,0 +1,16 @@
+export const STATE_DATA : { label: string; value: number }[] = [
+    { label: 'Kedah', value: 1.0 },
+    { label: 'Kelantan', value: 2.0 },
+    { label: 'Labuan', value: 3.0 },
+    { label: 'Melaka', value: 4.0 },
+    { label: 'Negeri Sembilan', value: 5.0 },
+    { label: 'Pahang', value: 6.0 },
+    { label: 'Perak', value: 7.0 },
+    { label: 'Perlis', value: 8.0 },
+    { label: 'Pulau Pinang', value: 9.0 },
+    { label: 'Sabah', value: 10.0 },
+    { label: 'Sarawak', value: 11.0 },
+    { label: 'Selangor', value: 12.0 },
+    { label: 'Terengganu', value: 13.0 },
+    { label: 'Johor', value: 14.0 },
+]

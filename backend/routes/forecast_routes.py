@@ -27,7 +27,6 @@ def to_dict(pydantic_obj):
     return pydantic_obj.dict()
 
 # --- ROUTES ---
-
 @forecast_bp.route("/forecast/predict", methods=["POST"])
 def predict_landings():
     """
