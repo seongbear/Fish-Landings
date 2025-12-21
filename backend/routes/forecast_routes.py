@@ -1,7 +1,11 @@
 from flask import Blueprint, request, jsonify
+from pydantic import ValidationError
 from services.ml_service import MLModelService
 from schemas import FisheryInput, PredictionResponse, ExplanationResponse
 import logging
+# Assuming generate_reply handles the actual API call to OpenAI/Gemini
+import services.gemini_service as gemini_service
+from prompt.explain_prompt import construct_fisherman_prompt
 
 # Initialize Blueprint
 forecast_bp = Blueprint("forecast_bp", __name__)
@@ -10,8 +14,7 @@ forecast_bp = Blueprint("forecast_bp", __name__)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# --- SERVICE INITIALIZATION (Singleton Pattern) ---
-# We initialize this once when the file is imported.
+# --- SERVICE INITIALIZATION ---
 try:
     ml_service = MLModelService()
     logger.info("✅ ML Service initialized successfully.")
@@ -21,42 +24,30 @@ except Exception as e:
 
 # --- HELPER: Pydantic Compatibility ---
 def to_dict(pydantic_obj):
-    """Safe conversion for both Pydantic V1 (.dict) and V2 (.model_dump)"""
     if hasattr(pydantic_obj, 'model_dump'):
         return pydantic_obj.model_dump()
     return pydantic_obj.dict()
 
+
 # --- ROUTES ---
 @forecast_bp.route("/forecast/predict", methods=["POST"])
 def predict_landings():
-    """
-    Endpoint to predict fishery landings.
-    """
-    # 1. Circuit Breaker: Check if ML service is loaded
     if not ml_service:
         return jsonify({"error": "Service Unavailable: ML Model failed to load."}), 503
-
     try:
-        # 2. Parse JSON (silent=True returns None instead of crashing on bad JSON)
         input_data = request.get_json(silent=True)
         if not input_data:
             return jsonify({"error": "Invalid or missing JSON body"}), 400
-
-        # 3. Validate Input using Schema
-        # This will raise ValueError if required fields are missing
-        fishery_input = FisheryInput(**input_data)
         
-        # 4. Predict
-        # Convert Pydantic object to Python dict for the service
+        fishery_input = FisheryInput(**input_data)
         prediction = ml_service.predict(to_dict(fishery_input))
         
-        # 5. Return Response
-        response = PredictionResponse(
-            predicted_landings=prediction,
-            status="success"
-        )
+        response = PredictionResponse(predicted_landings=prediction, status="success")
         return jsonify(to_dict(response)), 200
-
+    
+    except ValidationError as ve:
+        logger.warning(f"Validation Error: {ve}")
+        return jsonify({"error": "Validation Error", "details": ve.errors()}), 422
     except ValueError as ve:
         logger.warning(f"Validation Error: {ve}")
         return jsonify({"error": "Validation Error", "details": str(ve)}), 422
@@ -64,31 +55,18 @@ def predict_landings():
         logger.error(f"Prediction Error: {e}")
         return jsonify({"error": "Internal Server Error", "details": str(e)}), 500
 
-
 @forecast_bp.route("/forecast/explain", methods=["POST"])
 def explain_prediction():
-    """
-    Endpoint to explain the prediction (SHAP values).
-    """
-    # 1. Circuit Breaker
     if not ml_service:
         return jsonify({"error": "Service Unavailable: ML Model failed to load."}), 503
-
     try:
-        # 2. Parse JSON
         input_data = request.get_json(silent=True)
         if not input_data:
             return jsonify({"error": "Invalid or missing JSON body"}), 400
 
-        # 3. Validate Input
         fishery_input = FisheryInput(**input_data)
-        
-        # 4. Generate Explanation
-        # The service now returns a Dictionary (not a tuple)
         explanation = ml_service.explain(to_dict(fishery_input))
         
-        # 5. Format Response
-        # We access the dictionary keys provided by the updated ml_service
         response = ExplanationResponse(
             base_value=explanation['base_value'],
             top_3_drivers=explanation['top_3_drivers'],
@@ -99,11 +77,42 @@ def explain_prediction():
         return jsonify(to_dict(response)), 200
 
     except ValueError as ve:
-        logger.warning(f"Validation Error: {ve}")
         return jsonify({"error": "Validation Error", "details": str(ve)}), 422
     except KeyError as ke:
-        logger.error(f"Data Error: Missing key in explanation result: {ke}")
         return jsonify({"error": "Explanation Data Error", "details": str(ke)}), 500
     except Exception as e:
-        logger.error(f"Explanation Error: {e}")
         return jsonify({"error": "Internal Server Error", "details": str(e)}), 500
+
+@forecast_bp.route("/forecast/llm_explanation", methods=["POST"])
+def generate_llm_explanation():
+    """
+    Endpoint to generate a fisherman-friendly explanation using an LLM.
+    """
+    try:
+        # 1. Parse Input
+        data = request.get_json(silent=True)
+        if not data:
+            return jsonify({"error": "Invalid or missing JSON body"}), 400
+
+        prediction = data.get("prediction")
+        drivers = data.get("drivers", [])
+        raw_input = data.get("raw_input", {}) 
+
+        if prediction is None:
+             return jsonify({"error": "Missing 'prediction' field"}), 400
+
+        # 2. Construct the Prompt with ALL context
+        # We call the helper function defined above
+        prompt_text = construct_fisherman_prompt(prediction, drivers, raw_input)
+
+        # 3. Call the LLM (using your imported function)
+        llm_explanation = gemini_service.generate_reply(prompt_text)
+
+        return jsonify({
+            "explanation": llm_explanation,
+            "status": "success"
+        }), 200
+
+    except Exception as e:
+        logger.error(f"LLM Generation Error: {e}")
+        return jsonify({"error": "Failed to generate AI explanation", "details": str(e)}), 500

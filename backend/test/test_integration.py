@@ -1,3 +1,4 @@
+from unittest.mock import patch
 import pytest
 import json
 import sys
@@ -93,8 +94,72 @@ def test_explain_endpoint_success(client):
     assert len(data['force_plot']) > 100
     
     print("✅ Integration Test: /explain returns SHAP data and images.")
+    
+    
+# --- 3. LLM EXPLANATION TESTS ---
+def test_llm_explanation_success(client):
+    """
+    Test the LLM route handles valid data and returns a response.
+    We MOCK the actual LLM API call to avoid costs and network dependency.
+    """
+    payload = {
+        "prediction": 1250.50,
+        "raw_input": {
+            "location": "Kuala Terengganu",
+            "month": "May",
+            "species": 12,  # Should decode to Tenggiri
+            "state": 13     # Should decode to Terengganu
+        },
+        "drivers": [
+            { "feature": "species", "value": 12, "shap_value": 0.5 },
+            { "feature": "state", "value": 13, "shap_value": -0.2 }
+        ]
+    }
 
-# --- 3. HTTP PROTOCOL TESTS ---
+    with patch('services.gemini_service.generate_reply') as mock_ai:
+        
+        # 1. Define what the fake AI returns
+        mock_ai.return_value = "The catch looks good for Tenggiri in Terengganu."
+        
+        # 2. Call the endpoint
+        response = client.post('/forecast/llm_explanation', json=payload)
+        data = response.get_json()
+
+        # 3. Assertions
+        assert response.status_code == 200
+        assert data['status'] == "success"
+        
+        # This will now pass because the mock intercepted the call
+        assert data['explanation'] == "The catch looks good for Tenggiri in Terengganu."
+        
+        # Verify the mock was actually called
+        mock_ai.assert_called_once()
+        
+        print("\n✅ Integration Test: /llm_explanation works (Mocked AI).")
+        
+def test_llm_explanation_missing_prediction(client):
+    """Test that the route fails gracefully if prediction is missing."""
+    payload = {
+        # "prediction" is intentionally missing
+        "raw_input": { "month": "May" },
+        "drivers": []
+    }
+    
+    response = client.post('/forecast/llm_explanation', json=payload)
+    data = response.get_json()
+    
+    assert response.status_code == 400
+    assert "Missing 'prediction' field" in data['error']
+    print("✅ Integration Test: LLM route catches missing prediction.")
+
+def test_llm_explanation_empty_body(client):
+    """Test sending empty body to LLM route."""
+    response = client.post('/forecast/llm_explanation', json={})
+    
+    assert response.status_code == 400
+    print("✅ Integration Test: LLM route handles empty body.")
+
+# --- 4. HTTP PROTOCOL TESTS ---
 def test_method_not_allowed(client):
     """Test using GET on a POST-only endpoint."""
     response = client.get('/forecast/predict') # GET request
