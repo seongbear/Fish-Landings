@@ -16,6 +16,7 @@ import EditProfile from '../screens/(tabs)/profile/screens/EditProfile';
 import Settings from '../screens/(tabs)/profile/screens/Settings';
 import DashboardPage from '../screens/(tabs)/dashboard/screens/dashboard';
 import ProfilePage from '../screens/(tabs)/profile/screens/profile';
+import { Forecast } from '../screens/(tabs)/dashboard/screens/forecast';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -126,6 +127,17 @@ export default function AppNavigator() {
           options={{
             headerShown: true,
             title: 'Settings',
+            headerTitleAlign: 'center',
+            headerTitleStyle: styles.headerTitle,
+          }}
+        />
+
+        <Stack.Screen
+          name="Forecast"
+          component={Forecast}
+          options={{
+            headerShown: true,
+            title: 'Forecast Fish Landings',
             headerTitleAlign: 'center',
             headerTitleStyle: styles.headerTitle,
           }}

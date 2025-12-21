@@ -19,7 +19,7 @@ export const Header = (
 }
 
 const styles = StyleSheet.create({
-    header: { paddingTop: 60, paddingBottom: 20, paddingHorizontal: 24, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'white' },
+    header: { paddingTop: 20, paddingBottom: 20, paddingHorizontal: 24, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'white' },
     headerTitle: { fontSize: 24, fontWeight: '800', color: '#0F172A' },
     headerSubtitle: { fontSize: 13, color: '#64748B' },
     filterBtn: { backgroundColor: '#0F172A', padding: 10, borderRadius: 12 },

@@ -4,20 +4,20 @@ import {
 } from 'react-native';
 import { LineChart, BarChart, PieChart } from 'react-native-gifted-charts';
 import { LinearGradient } from 'expo-linear-gradient';
-import { 
-  Filter, X, TrendingUp, Fish, MapPin, Thermometer, Anchor, Calendar, Wind, Droplets 
-} from 'lucide-react-native';
-// Adjust imports to your project structure
+import { TrendingUp, Fish, Thermometer, Anchor, Calendar } from 'lucide-react-native';
 import { LandingData } from '../types/landings';
 import { useLandingsData } from '../hooks/useLandings';
 import { FilterModal } from '../components/FilterModal';
 import { NoData } from '../components/NoData';
 import { Header } from '../components/Header';
 import { EnvironmentalAvg } from '../components/EnvironmentalAvg';
+import Background from '../../../../components/background';
+import { useNavigation } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
 
 export default function DashboardPage() {
+  const navigation = useNavigation<any>();
   // --- Filter State ---
   const [filters, setFilters] = useState({
     state: 'All',
@@ -63,7 +63,7 @@ export default function DashboardPage() {
     // Fallback to 0 if fields are missing in data
     const avgTemp = filtered.reduce((a, b) => a + (b.temperature || 0), 0) / count;
     const avgWind = filtered.reduce((a, b) => a + (b.wind_speed || 0), 0) / count;
-    const avgHumid = filtered.reduce((a, b) => a + (b.dew_point || 0), 0) / count;
+    const avgHumid = filtered.reduce((a, b) => a + (b.humidity|| 0), 0) / count;
 
     // 3. Monthly Trend (Line Chart)
     const monthlyCatch = new Array(12).fill(0);
@@ -123,6 +123,11 @@ export default function DashboardPage() {
     return ['All', ...Array.from(new Set(values)).sort()];
   };
 
+  // Handle fab press 
+  const handleFabPress = () => {
+    navigation.navigate('Forecast');
+  }
+
   // --- Loading / Error States ---
   if (loading) {
     return (
@@ -143,156 +148,165 @@ export default function DashboardPage() {
 
   return (
     <View style={styles.container}>
-        {/* --- Header --- */}
-        <Header setShowFilterModal={setShowFilterModal} />
+        <Background disableTopEdge={false}>
+          {/* --- Header --- */}
+          <Header setShowFilterModal={setShowFilterModal} />
+            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+              {/* --- HERO TREND --- */}
+              <LinearGradient colors={['#1E293B', '#0F172A']} style={styles.heroCard}>
+                <View style={styles.heroHeader}>
+                  <View>
+                    <Text style={styles.heroLabel}>TOTAL LANDINGS</Text>
+                    <Text style={styles.heroValue}>{analytics.totalLandings.toFixed(1)} <Text style={styles.heroUnit}>tonnes</Text></Text>
+                  </View>
+                  <View style={styles.heroIcon}><TrendingUp size={24} color="#10B981" /></View>
+                </View>
+                <View style={styles.heroChart}>
+                  {analytics.trendData.length > 0 && (
+                    <LineChart
+                      data={analytics.trendData}
+                      curved
+                      thickness={3}
+                      color="#3B82F6"
+                      hideRules
+                      hideYAxisText
+                      hideAxesAndRules
+                      height={100}
+                      width={width - 80}
+                      startFillColor="rgba(59, 130, 246, 0.3)"
+                      endFillColor="rgba(59, 130, 246, 0.0)"
+                      startOpacity={1}
+                      endOpacity={0.1}
+                      areaChart
+                      initialSpacing={0}
+                    />
+                  )}
+                </View>
+              </LinearGradient>
 
-        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+              {/* --- ENVIRONMENTAL AVERAGES (Weather Metrics) --- */}
+              <Text style={styles.sectionTitleSmall}>ENVIRONMENTAL AVERAGES</Text>
+              <EnvironmentalAvg avgTemp={analytics.avgTemp} avgWind={analytics.avgWind} avgHumid={analytics.avgHumid} />
+
+              {/* --- Active Filters Chips --- */}
+              <View style={styles.activeFilters}>
+                {Object.entries(filters).map(([key, val]) => val !== 'All' && (
+                  <View key={key} style={styles.filterChip}>
+                    <Text style={styles.filterChipText}>{val}</Text>
+                  </View>
+                ))}
+              </View>
+
+              {/* --- Species Composition --- */}
+              <View style={styles.card}>
+                <View style={styles.cardHeader}>
+                  <View style={[styles.iconBox, {backgroundColor:'#EFF6FF'}]}><Fish size={18} color="#3B82F6"/></View>
+                  <Text style={styles.cardTitle}>Species Distribution</Text>
+                </View>
+                <View style={styles.rowBetween}>
+                  {analytics.speciesData.length > 0 ? (
+                    <PieChart
+                      data={analytics.speciesData}
+                      donut
+                      radius={70}
+                      innerRadius={45}
+                      textSize={10}
+                      textColor="white"
+                      fontWeight="bold"
+                      showText
+                    />
+                  ) : <NoData />}
+                  <View style={styles.legendContainer}>
+                    {analytics.speciesData.map((item, i) => (
+                      <View key={i} style={styles.legendItem}>
+                        <View style={[styles.dot, {backgroundColor: item.color as string}]} />
+                        <Text style={styles.legendText}>{item.legend}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              </View>
+
+              {/* --- Gear Efficiency --- */}
+              <View style={styles.card}>
+                <View style={styles.cardHeader}>
+                  <View style={[styles.iconBox, {backgroundColor:'#EEF2FF'}]}><Anchor size={18} color="#6366F1"/></View>
+                  <Text style={styles.cardTitle}>Top Gear Types</Text>
+                </View>
+                {analytics.gearData.length > 0 ? (
+                  <BarChart
+                    data={analytics.gearData}
+                    barWidth={30}
+                    spacing={24}
+                    roundedTop
+                    hideRules
+                    xAxisThickness={0}
+                    yAxisThickness={0}
+                    yAxisTextStyle={{color:'#94A3B8', fontSize:10}}
+                    height={180}
+                    isAnimated
+                  />
+                ) : <NoData />}
+              </View>
+
+              {/* --- Environmental Impact --- */}
+              <View style={styles.card}>
+                <View style={styles.cardHeader}>
+                  <View style={[styles.iconBox, {backgroundColor:'#ECFDF5'}]}><Thermometer size={18} color="#10B981"/></View>
+                  <Text style={styles.cardTitle}>Impact: Temp vs Catch</Text>
+                </View>
+                {analytics.envData.some(d => d.value > 0) ? (
+                  <BarChart
+                    data={analytics.envData}
+                    barWidth={50}
+                    spacing={40}
+                    roundedTop
+                    hideRules
+                    xAxisThickness={0}
+                    yAxisThickness={0}
+                    height={150}
+                    isAnimated
+                    renderTooltip={(item: any) => (
+                      <View style={{backgroundColor:'black', padding:6, borderRadius:4}}>
+                        <Text style={{color:'white'}}>{item.value.toFixed(1)}t</Text>
+                      </View>
+                    )}
+                  />
+                ) : <NoData />}
+              </View>
+
+              {/* --- Seasonality --- */}
+              <View style={styles.card}>
+                <View style={styles.cardHeader}>
+                  <View style={[styles.iconBox, {backgroundColor:'#FFFBEB'}]}><Calendar size={18} color="#F59E0B"/></View>
+                  <Text style={styles.cardTitle}>Seasonality (Peak Months)</Text>
+                </View>
+                {analytics.seasonalityData.some(d => d.value > 0) ? (
+                  <BarChart
+                    data={analytics.seasonalityData}
+                    barWidth={18}
+                    spacing={10}
+                    roundedTop
+                    hideRules
+                    xAxisThickness={0}
+                    yAxisThickness={0}
+                    height={150}
+                  />
+                ) : <NoData />}
+              </View>
+
+              <View style={{height: 40}} />
+            </ScrollView>
+
+            <TouchableOpacity 
+              style={styles.fab} 
+              onPress={handleFabPress}
+            >
+              {/* You can replace this Text with an Icon library if you have one */}
+              <Fish size={30} color="white" />
+            </TouchableOpacity>
+        </Background>
         
-        {/* --- HERO TREND --- */}
-        <LinearGradient colors={['#1E293B', '#0F172A']} style={styles.heroCard}>
-          <View style={styles.heroHeader}>
-            <View>
-              <Text style={styles.heroLabel}>TOTAL LANDINGS</Text>
-              <Text style={styles.heroValue}>{analytics.totalLandings.toFixed(1)} <Text style={styles.heroUnit}>tonnes</Text></Text>
-            </View>
-            <View style={styles.heroIcon}><TrendingUp size={24} color="#10B981" /></View>
-          </View>
-          <View style={styles.heroChart}>
-            {analytics.trendData.length > 0 && (
-              <LineChart
-                data={analytics.trendData}
-                curved
-                thickness={3}
-                color="#3B82F6"
-                hideRules
-                hideYAxisText
-                hideAxesAndRules
-                height={100}
-                width={width - 80}
-                startFillColor="rgba(59, 130, 246, 0.3)"
-                endFillColor="rgba(59, 130, 246, 0.0)"
-                startOpacity={1}
-                endOpacity={0.1}
-                areaChart
-                initialSpacing={0}
-              />
-            )}
-          </View>
-        </LinearGradient>
-
-        {/* --- ENVIRONMENTAL AVERAGES (Weather Metrics) --- */}
-        <Text style={styles.sectionTitleSmall}>ENVIRONMENTAL AVERAGES</Text>
-        <EnvironmentalAvg avgTemp={analytics.avgTemp} avgWind={analytics.avgWind} avgHumid={analytics.avgHumid} />
-
-        {/* --- Active Filters Chips --- */}
-        <View style={styles.activeFilters}>
-          {Object.entries(filters).map(([key, val]) => val !== 'All' && (
-            <View key={key} style={styles.filterChip}>
-              <Text style={styles.filterChipText}>{val}</Text>
-            </View>
-          ))}
-        </View>
-
-        {/* --- Species Composition --- */}
-        <View style={styles.card}>
-          <View style={styles.cardHeader}>
-            <View style={[styles.iconBox, {backgroundColor:'#EFF6FF'}]}><Fish size={18} color="#3B82F6"/></View>
-            <Text style={styles.cardTitle}>Species Distribution</Text>
-          </View>
-          <View style={styles.rowBetween}>
-            {analytics.speciesData.length > 0 ? (
-              <PieChart
-                data={analytics.speciesData}
-                donut
-                radius={70}
-                innerRadius={45}
-                textSize={10}
-                textColor="white"
-                fontWeight="bold"
-                showText
-              />
-            ) : <NoData />}
-            <View style={styles.legendContainer}>
-              {analytics.speciesData.map((item, i) => (
-                <View key={i} style={styles.legendItem}>
-                  <View style={[styles.dot, {backgroundColor: item.color as string}]} />
-                  <Text style={styles.legendText}>{item.legend}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
-        </View>
-
-        {/* --- Gear Efficiency --- */}
-        <View style={styles.card}>
-          <View style={styles.cardHeader}>
-            <View style={[styles.iconBox, {backgroundColor:'#EEF2FF'}]}><Anchor size={18} color="#6366F1"/></View>
-            <Text style={styles.cardTitle}>Top Gear Types</Text>
-          </View>
-          {analytics.gearData.length > 0 ? (
-            <BarChart
-              data={analytics.gearData}
-              barWidth={30}
-              spacing={24}
-              roundedTop
-              hideRules
-              xAxisThickness={0}
-              yAxisThickness={0}
-              yAxisTextStyle={{color:'#94A3B8', fontSize:10}}
-              height={180}
-              isAnimated
-            />
-          ) : <NoData />}
-        </View>
-
-        {/* --- Environmental Impact --- */}
-        <View style={styles.card}>
-          <View style={styles.cardHeader}>
-            <View style={[styles.iconBox, {backgroundColor:'#ECFDF5'}]}><Thermometer size={18} color="#10B981"/></View>
-            <Text style={styles.cardTitle}>Impact: Temp vs Catch</Text>
-          </View>
-          {analytics.envData.some(d => d.value > 0) ? (
-            <BarChart
-              data={analytics.envData}
-              barWidth={50}
-              spacing={40}
-              roundedTop
-              hideRules
-              xAxisThickness={0}
-              yAxisThickness={0}
-              height={150}
-              isAnimated
-              renderTooltip={(item: any) => (
-                <View style={{backgroundColor:'black', padding:6, borderRadius:4}}>
-                  <Text style={{color:'white'}}>{item.value.toFixed(1)}t</Text>
-                </View>
-              )}
-            />
-          ) : <NoData />}
-        </View>
-
-        {/* --- Seasonality --- */}
-        <View style={styles.card}>
-          <View style={styles.cardHeader}>
-            <View style={[styles.iconBox, {backgroundColor:'#FFFBEB'}]}><Calendar size={18} color="#F59E0B"/></View>
-            <Text style={styles.cardTitle}>Seasonality (Peak Months)</Text>
-          </View>
-          {analytics.seasonalityData.some(d => d.value > 0) ? (
-            <BarChart
-              data={analytics.seasonalityData}
-              barWidth={18}
-              spacing={10}
-              roundedTop
-              hideRules
-              xAxisThickness={0}
-              yAxisThickness={0}
-              height={150}
-            />
-          ) : <NoData />}
-        </View>
-
-        <View style={{height: 40}} />
-      </ScrollView>
 
       {/* --- Filter Modal --- */}
       <FilterModal 
@@ -335,4 +349,28 @@ const styles = StyleSheet.create({
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   dot: { width: 8, height: 8, borderRadius: 4 },
   legendText: { fontSize: 13, color: '#475569', fontWeight: '500' },
+
+  // FAB Styles
+  fab: {
+    position: 'absolute',
+    width: 60,
+    height: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+    right: 20,
+    bottom: 20,
+    backgroundColor: '#007AFF', // Blue color (Change to match your theme)
+    borderRadius: 30, // Makes it circular (half of width/height)
+    elevation: 8,     // Shadow for Android
+    shadowColor: '#000', // Shadow for iOS
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  fabIcon: {
+    fontSize: 30,
+    color: 'white',
+    fontWeight: 'bold',
+    marginTop: -2, // Slight adjustment to center the "+" perfectly
+  },
 });

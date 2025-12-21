@@ -5,3 +5,12 @@ asgiref==3.8.1
 firebase-admin==6.5.0
 uvicorn==0.22.0
 pandas==2.3.3
+numpy
+joblib
+shap
+matplotlib
+scikit-learn
+lightgbm
+pydantic
+python-multipart
+pytest
