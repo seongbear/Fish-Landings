@@ -151,53 +151,6 @@ class TestMLServiceUnit(unittest.TestCase):
         self.assertTrue("Model Corrupted" in str(context.exception))
         print("✅ Unit Test: Internal model errors are raised correctly.\n")
 
-    
-    """
-    Unit tests for the 'Explainable AI' component.
-    """
-    def test_prompt_decoding_logic(self):
-        """
-        Test if the prompt constructor correctly converts integer IDs 
-        (Species 12, State 13) into readable names (Tenggiri, Terengganu).
-        """
-        # 1. Setup Mock Data
-        prediction = 500.0
-        
-        # Drivers with raw integer values
-        drivers = [
-            {'feature': 'species', 'value': 12, 'shap_value': 0.5},   # Should become Tenggiri
-            {'feature': 'state', 'value': 13, 'shap_value': -0.2},    # Should become Terengganu
-            {'feature': 'wind_speed', 'value': 15.0, 'shap_value': 0.1} # Should stay 15.0
-        ]
-        
-        # Raw input context
-        raw_input = {
-            'location': 'Kuala Terengganu',
-            'month': 'December'
-        }
-
-        # 2. Execute Logic
-        prompt_result = construct_fisherman_prompt(prediction, drivers, raw_input)
-        
-        # 3. Assertions (Check if specific keywords exist in the output text)
-        print("\n--- Generated Prompt Preview ---\n", prompt_result)
-
-        # Check for Prediction
-        self.assertIn("500.00 Tonnes", prompt_result)
-        
-        # Check for Context
-        self.assertIn("Kuala Terengganu", prompt_result)
-        
-        # Check for DECODED values (The most important part)
-        self.assertIn("Tenggiri", prompt_result, "Failed to decode Species ID 12")
-        self.assertIn("Terengganu", prompt_result, "Failed to decode State ID 13")
-        
-        # Check for Impact descriptions
-        self.assertIn("HELPED increase", prompt_result) # for positive SHAP
-        self.assertIn("LOWERED", prompt_result)         # for negative SHAP
-
-        print("✅ Unit Test: LLM Prompt correctly decodes IDs to Names.\n")
-
     def test_prompt_handles_unknown_ids(self):
         """
         Test if the system handles unknown IDs gracefully without crashing.

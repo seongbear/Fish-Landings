@@ -14,3 +14,4 @@ lightgbm
 pydantic
 python-multipart
 pytest
+pytest-cov
