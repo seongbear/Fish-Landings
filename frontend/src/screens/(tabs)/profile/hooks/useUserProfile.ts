@@ -1,40 +1,42 @@
-import { useCallback, useEffect, useState } from "react";
-import { EditProfileProps, ProfileProps } from "../type/profile";
+import { useCallback, useState } from "react";
+import { ProfileProps } from "../type/profile";
 import { editProfileInFirestore, fetchUserProfileById } from "../../../../api/userApi";
 import { useAuth } from "../../../Auth/AuthContext";
 import { useFocusEffect } from "@react-navigation/native";
 
 export const useUserProfile = () => {
-    const { userId } = useAuth();
-    const [profile, setProfile] = useState<ProfileProps | null>(null);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
+  const { userId } = useAuth();
+  const [profile, setProfile] = useState<ProfileProps | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-    const loadUserProfile = useCallback(async () => {
-        if (!userId) {
-            setLoading(false);
-            return;
-        }
+  // Inside useUserProfile
+  const loadUserProfile = useCallback(async () => {
+    if (!userId) {
+      setLoading(false);
+      return;
+     }
 
-        try {
-            const response = await fetchUserProfileById(userId);
-            setProfile(response);
-            setError(null);
-        } catch (err) {
-            console.error("Error loading profile:", err);
-            setError(err instanceof Error ? err.message : "Failed to load profile");
-        } finally {
-            setLoading(false);
-        }
-    }, [userId]);
+    setLoading(true); 
 
-    useFocusEffect(
-        useCallback(() => {
-            loadUserProfile();
-        }, [loadUserProfile])
-    );
+    try {
+      const response = await fetchUserProfileById(userId);
+      setProfile(response);
+      setError(null);
+    } catch (err) {
+      setError('Failed to load user profile');
+    } finally {
+      setLoading(false);
+    }
+  }, [userId]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadUserProfile();
+    }, [loadUserProfile])
+  );
     
-    return { profile, loading, error, refetch: loadUserProfile };
+  return { profile, loading, error, refetch: loadUserProfile };
 };
 
 export const useEditProfile = () => {

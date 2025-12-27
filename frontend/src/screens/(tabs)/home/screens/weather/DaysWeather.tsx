@@ -22,14 +22,14 @@ export default function DaysWeather() {
         });
     }, []);
 
-    // 2. Prepare Coords (Guard against null)
-    const lat = location?.latitude || 0;
-    const lon = location?.longitude || 0;
-    const locationName = location?.city || 'Locating...';
+  // 2. Prepare Coords (Guard against null)
+  const lat = location?.latitude || 0;
+  const lon = location?.longitude || 0;
+  const locationName = location?.city || 'Locating...';
 
-    // 3. Fetch Data (Hook handles the 0,0 check internally)
-    const { forecastList, loading, error } = useForecastWeather(lat, lon);
-    const isLoading = locationLoading || (loading && forecastList.length === 0);
+  // 3. Fetch Data (Hook handles the 0,0 check internally)
+  const { forecastList, loading, error } = useForecastWeather(lat, lon);
+  const isLoading = locationLoading || (loading && forecastList.length === 0);
 
   // --- Icon Helper ---
   const getIcon = (name: string, size = 20, color = '#000') => {
@@ -131,8 +131,14 @@ export default function DaysWeather() {
   return (
     <Background disableTopEdge={true}>
       <View style={styles.container}>
-          {renderHeader()}
-          {forecastList.map((item) => renderItem({ item }))}
+          <FlatList
+            data={forecastList}
+            keyExtractor={(item) => item.date} 
+            renderItem={renderItem}
+            ListHeaderComponent={renderHeader}
+            contentContainerStyle={{ paddingBottom: 40 }}
+            showsVerticalScrollIndicator={false}
+         />
       </View>
     </Background>
   );

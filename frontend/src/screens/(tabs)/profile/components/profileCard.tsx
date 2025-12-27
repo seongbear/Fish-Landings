@@ -1,20 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Image, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient'; // Change to 'react-native-linear-gradient' if using CLI
+import { LinearGradient } from 'expo-linear-gradient'; 
 import { MapPin, SquarePen, User } from 'lucide-react-native';
 import { getCurrentLocation } from '../../../../utils/getCurrentLocation';
 import { useUserProfile } from '../hooks/useUserProfile';
 import { useNavigation } from '@react-navigation/native';
 
 export default function ProfileCard() {
+  // 1. ALL HOOKS MUST BE DECLARED HERE (Top Level)
   const { profile, loading } = useUserProfile();
   const [location, setLocation] = useState<any>(null);
+  
+  // MOVED UP: Call useNavigation before any return statements
+  const navigation = useNavigation<any>(); 
 
   useEffect(() => {
     getCurrentLocation().then(setLocation).catch(() => {});
   }, []);
 
-  // Helper for the "Skeleton" loading view
+  // 2. NOW you can have conditional returns
   if (loading) {
     return (
       <View style={[styles.cardContainer, styles.skeletonContainer]}>
@@ -29,22 +33,19 @@ export default function ProfileCard() {
     ? new Date(profile.createdAt).getFullYear()
     : new Date().getFullYear();
 
-  const navigation = useNavigation<any>();
   const handleEditPress = () => {
     navigation.navigate('EditProfile');
   }
 
-
   return (
     <LinearGradient
-      // Deep Blue to Ocean Cyan Gradient
       colors={['#1E40AF', '#3B82F6']} 
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={styles.cardContainer}
     >
       <View style={styles.topRow}>
-        {/* Profile Image with Border */}
+        {/* Profile Image */}
         <View style={styles.imageContainer}>
           <Image
             source={{
@@ -65,7 +66,7 @@ export default function ProfileCard() {
             </Text>
           </View>
 
-          {/* ID Badge (Pill Shape) */}
+          {/* ID Badge */}
           <View style={styles.badgeContainer}>
             <Text style={styles.badgeLabel}>ID: </Text>
             <Text style={styles.badgeText} numberOfLines={1} ellipsizeMode="middle">
@@ -74,7 +75,7 @@ export default function ProfileCard() {
           </View>
         </View>
 
-        {/* Edit Button (Glass effect) */}
+        {/* Edit Button */}
         <TouchableOpacity 
           style={styles.editButton} 
           onPress={handleEditPress}
@@ -97,12 +98,12 @@ export default function ProfileCard() {
   );
 }
 
+// ... styles remain the same ...
 const styles = StyleSheet.create({
     cardContainer: {
         borderRadius: 24,
         width: '100%',
         padding: 20,
-        // Shadow for depth
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 10 },
         shadowOpacity: 0.15,
@@ -119,8 +120,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
     },
-    
-    // Image Styles
     imageContainer: {
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 4 },
@@ -136,8 +135,6 @@ const styles = StyleSheet.create({
         borderColor: 'rgba(255,255,255,0.8)',
         backgroundColor: '#f1f5f9'
     },
-
-    // Info Section
     infoColumn: {
         flex: 1,
         marginLeft: 16,
@@ -161,8 +158,6 @@ const styles = StyleSheet.create({
         marginLeft: 4,
         fontWeight: '500',
     },
-
-    // ID Badge
     badgeContainer: {
         flexDirection: 'row',
         backgroundColor: 'rgba(0, 0, 0, 0.2)',
@@ -180,22 +175,18 @@ const styles = StyleSheet.create({
         color: 'white',
         fontSize: 11,
         fontWeight: '700',
-        fontFamily: 'monospace', // Monospace looks better for IDs
+        fontFamily: 'monospace',
     },
-
-    // Edit Button
     editButton: {
         width: 40,
         height: 40,
         borderRadius: 20,
-        backgroundColor: 'rgba(255,255,255,0.15)', // Glass effect
+        backgroundColor: 'rgba(255,255,255,0.15)',
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 1,
         borderColor: 'rgba(255,255,255,0.1)',
     },
-
-    // Footer
     divider: {
         height: 1,
         backgroundColor: 'rgba(255,255,255,0.2)',
