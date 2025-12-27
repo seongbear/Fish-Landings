@@ -70,7 +70,7 @@ export default function ProfileCard() {
           <View style={styles.badgeContainer}>
             <Text style={styles.badgeLabel}>ID: </Text>
             <Text style={styles.badgeText} numberOfLines={1} ellipsizeMode="middle">
-               {profile.id.substring(0, 12)}...
+               Fish-{profile.id.substring(0, 6)}
             </Text>
           </View>
         </View>
