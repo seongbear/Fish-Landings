@@ -71,7 +71,7 @@ export default function EditProfile() {
             <TouchableOpacity onPress={pickImage} activeOpacity={0.8}>
                 <View style={styles.imageWrapper}>
                 <Image 
-                    source={{ uri: image || user?.profile?.imageUrl }} 
+                    source={{ uri: image || user?.profile?.imageUrl || 'https://img.freepik.com/premium-vector/cute-cartoon-fish-cute-little-fish_1057-117676.jpg?w=360' }} 
                     style={styles.avatar} 
                 />
                 {/* Camera Badge */}

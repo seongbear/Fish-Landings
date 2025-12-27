@@ -1,29 +1,32 @@
-import React from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import { registerRootComponent } from 'expo';
-import LoginPage from './src/screens/Auth/LoginPage';
 import { AuthProvider, useAuth } from './src/screens/Auth/AuthContext';
 import AppNavigator from './src/navigators/navigation';
+import SplashScreen from './src/screens/Auth/screen/SplashScreen';
+import LoginPage from './src/screens/Auth/screen/LoginPage';
 
 // --- Content that uses Auth Context ---
 const AppLayout = () => {
   const { user, loading } = useAuth();
+  const [isSplashAnimationFinished, setSplashAnimationFinished] = useState(false);
 
-  if (loading) {
+  useEffect(() => {
+    // Force the splash screen to stay visible for at least 2 seconds
+    // This prevents a "flicker" if auth loads too fast
+    const timer = setTimeout(() => {
+      setSplashAnimationFinished(true);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading || !isSplashAnimationFinished) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#0000ff" />
-      </View>
+      <SplashScreen />
     );
   }
 
-  // If logged in → show navigation system (tabs + stacks)
-  if (user) {
-    return <AppNavigator />;
-  }
-
-  // If logged out → show login
-  return <LoginPage />;
+  return <AppNavigator />;
 };
 
 // --- Root of App ---
