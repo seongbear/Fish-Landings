@@ -18,6 +18,7 @@ import { GEAR_DATA } from '../../../../constants/gearMap';
 import { ForecastDropdown } from '../components/render_helper/ForecastDropdown';
 import { ForecastInput } from '../components/render_helper/ForecastInput';
 import { ForecastModal } from '../components/render_helper/ForecastModal';
+import { FeedbackModal } from '../components/FeedbackModal';
 
 export const Forecast = () => {
     // 1. Local Form State
@@ -44,7 +45,7 @@ export const Forecast = () => {
     const [currentField, setCurrentField] = useState('');
     const [pickerOptions, setPickerOptions] = useState<Array<{ label: string; value: string }>>([]);
     const [feedbackModalVisible, setFeedbackModalVisible] = useState(false);
-    
+
     // --- Handlers ---
     const handleInputChange = (key: string, value: string) => {
         setFormData({ ...formData, [key]: value });
@@ -123,6 +124,12 @@ export const Forecast = () => {
   // Feedback Modal
   const openFeedbackModal = () => {
     setFeedbackModalVisible(true);
+    console.log('Feedback Modal Opened');
+  };
+
+  const closeFeedbackModal = () => {
+    setFeedbackModalVisible(false);
+    console.log('Feedback Modal Closed');
   };
 
   return (
@@ -255,7 +262,8 @@ export const Forecast = () => {
 
       {/* --- CUSTOM PICKER MODAL --- */}
       <ForecastModal visible={modalVisible} setModalVisible={setModalVisible} pickerOptions={pickerOptions} currentField={currentField} formData={formData} selectOption={selectOption} />
-
+      
+      <FeedbackModal visible={feedbackModalVisible} onClose={closeFeedbackModal} />
     </Background>
   );
 };

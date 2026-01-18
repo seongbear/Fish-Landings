@@ -3,9 +3,10 @@ import { Alert } from 'react-native';
 import { 
   postForecastLandings, 
   postSHAPExplain, 
-  postLLMExplain 
+  postLLMExplain, 
+  postFeedback
 } from '../../../../api/landingsApi';
-import { ForecastPayload, PlotAnalysisData } from '../types/landings'; 
+import { FeedbackData, ForecastPayload, PlotAnalysisData } from '../types/landings'; 
 
 // 1. Interfaces
 export interface ExplanationData {
@@ -16,14 +17,30 @@ export interface ExplanationData {
 }
 
 export const useForecast = () => {
-    // 2. Typed State
+    // Typed State
+    let docId: string | undefined;
     const [loading, setLoading] = useState<boolean>(false);
     const [prediction, setPrediction] = useState<number | null>(null);
     const [explanation, setExplanation] = useState<ExplanationData | null>(null);
     const [llmExplanation, setLlmExplanation] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
-
-    // 3. Validation Helper
+    // 1. Reality Check State
+    const [accuracy, setAccuracy] = useState<'GOOD' | 'OK' | 'BAD' | null>(null);
+    const [actualCatch, setActualCatch] = useState<string>('');
+    // 2. Trust & Usefulness State
+    const [isUseful, setIsUseful] = useState<boolean | null>(null);
+    const [trust, setTrust] = useState<'HIGH' | 'MEDIUM' | 'LOW' | null>(null);
+    // 3. Optional Comment
+    const [comment, setComment] = useState('')
+    // 4. Feedback Comments
+    const [feedbackComments, setFeedbackComments] = useState<string>();
+    const [statusModal, setStatusModal] = useState({
+        visible: false,
+        type: 'success' as 'success' | 'error',
+        message: ''
+    });
+    
+    // Validation Helper
     const validateInputs = (data: Partial<ForecastPayload>): string | null => {
         if (!data.species) return "Please select a Species.";
         if (!data.state) return "Please select a State.";
@@ -46,7 +63,7 @@ export const useForecast = () => {
         return null;
     };
 
-    // 4. Generate Forecast Function
+    // Generate Forecast Function
     const generateForecast = async (rawFormData: ForecastPayload) => {
         setLoading(true);
         setError(null);
@@ -79,8 +96,7 @@ export const useForecast = () => {
             }
 
             const finalValue = forecastResult.prediction;
-            const docId = forecastResult.docId; // <--- Capture the Firestore ID
-
+            docId = forecastResult.docId; // 
             setPrediction(finalValue); // Update UI immediately
 
             // --- D. Step 2: EXPLAIN (Update Doc with SHAP) ---
@@ -123,6 +139,15 @@ export const useForecast = () => {
         }
     };
 
+    const submitFeedback = async (data: FeedbackData) => {
+        if (docId) {
+            await postFeedback(data, docId);
+        } else {
+            console.error("No docId provided for feedback submission.");
+        }
+    };
+
+    // Reset Forecast
     const resetForecast = () => {
         setPrediction(null);
         setExplanation(null);
@@ -136,7 +161,23 @@ export const useForecast = () => {
         explanation,
         llmExplanation,
         error,
+        docId,
         generateForecast,
-        resetForecast
+        resetForecast,
+        accuracy,
+        setAccuracy,
+        actualCatch,
+        setActualCatch,
+        isUseful,
+        setIsUseful,
+        trust,
+        setTrust,
+        comment,
+        setComment,
+        feedbackComments,
+        setFeedbackComments,
+        setStatusModal,
+        statusModal,
+        submitFeedback
     };
 };

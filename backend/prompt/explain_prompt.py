@@ -55,6 +55,7 @@ def construct_fisherman_prompt(prediction, drivers, raw_input):
 
     # --- 2. EXTRACT & SANITIZE CONTEXT ---
     state_id = raw_input.get('state', -2)
+    month = raw_input.get('month', -2)
     state_name = STATE_MAP.get(int(state_id), "Malaysia")
     
     species_id = raw_input.get('species', -2)
@@ -137,7 +138,7 @@ Your goal is to explain the forecast to a fisherman in simple, plain language.
 
 --- REQUIRED SEARCHES ---
 Search Google for:
-1. "Wholesale price for {species_name} per kg in {state_name} for the last 3 months" (Current Price)
+1. "Wholesale price for {species_name} per kg in {state_name} in {month}th last year in Ringgit Malaysia" (Current Price)
 2. "Amaran angin kencang {state_name} METMalaysia" (Safety)
 3. "Harga diesel Malaysia terkini" (Fuel)
 
@@ -145,7 +146,7 @@ Search Google for:
 
 **1. 💰 Is it Worth It? (Money)**
 * **Verdict:** {verdict_status}
-* **Market Check:** Search for the price of **{species_name}** for the last 3 months.
+* **Market Check:** Search for the price of **{species_name}** in **{state_name}**.
     * If Price is HIGH + Catch is LOW: "You might make money because the price is high."
     * If Price is LOW + Catch is LOW: "Not worth the fuel cost today."
 * **Fuel:** Mention if fuel is expensive right now.

@@ -1,4 +1,4 @@
-import { ForecastPayload, LandingData, PlotAnalysisData } from "../screens/(tabs)/dashboard/types/landings";
+import { ForecastPayload, LandingData, PlotAnalysisData, FeedbackData } from "../screens/(tabs)/dashboard/types/landings";
 import { auth, firestore } from "../firebaseConfig";
 import { collection, doc, serverTimestamp, updateDoc, addDoc } from "firebase/firestore";
 
@@ -262,4 +262,26 @@ export const postLLMExplain = async (
     console.error("Error posting LLM explain request:", error);
     throw error;
   }
+}
+
+export const postFeedback = async (payload: FeedbackData, docId?: string) => {
+  if (docId){
+    try {
+      const forecastRef = doc(firestore, "forecasts", docId); // Use 'db' here
+      await updateDoc(forecastRef, {
+        feedback:{
+          actualValue: payload.actualValue,
+          accuracyRating: payload.accuracyRating,
+          isUseful: payload.isUseful,
+          trustLevel: payload.trustLevel,
+          comment: payload.comment,
+          feedbackComments: payload.feedbackComments
+        }
+      });
+    } catch (error) {
+      console.error("Error posting feedback request:", error);
+      throw error;
+    }
+  }
+  
 }

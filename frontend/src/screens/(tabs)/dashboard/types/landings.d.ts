@@ -35,3 +35,12 @@ export interface PlotAnalysisData {
     shap_impact: number;
     direction: string;
 }
+
+export interface FeedbackData {
+  actualValue?: number;
+  accuracyRating: 'GOOD' | 'OK' | 'BAD';
+  isUseful: boolean;
+  trustLevel: 'HIGH' | 'MEDIUM' | 'LOW';
+  comment?: string;
+  feedbackComments?: string;
+}
