@@ -42,7 +42,7 @@ def generate_reply(prompt: str) -> str:
             if sources:
                 final_text += "\n\n**Sources:**\n"
                 for i, (uri, title) in enumerate(sources.items(), 1):
-                    final_text += f"{i}. [{title}]({uri})\n"
+                    final_text += f"{i}. {title}\n"
 
         return final_text
 

@@ -43,7 +43,8 @@ export const Forecast = () => {
     const [modalVisible, setModalVisible] = useState(false);
     const [currentField, setCurrentField] = useState('');
     const [pickerOptions, setPickerOptions] = useState<Array<{ label: string; value: string }>>([]);
-
+    const [feedbackModalVisible, setFeedbackModalVisible] = useState(false);
+    
     // --- Handlers ---
     const handleInputChange = (key: string, value: string) => {
         setFormData({ ...formData, [key]: value });
@@ -117,6 +118,11 @@ export const Forecast = () => {
       // Even indices are the normal text
       return <Text key={index}>{part}</Text>;
     });
+  };
+
+  // Feedback Modal
+  const openFeedbackModal = () => {
+    setFeedbackModalVisible(true);
   };
 
   return (
@@ -233,6 +239,11 @@ export const Forecast = () => {
                       {renderFormattedText(llmExplanation)}
                     </Text>
                   </View>
+
+                  {/* Provide Feedback Button*/}
+                  <TouchableOpacity style={styles.button} onPress={openFeedbackModal}>
+                    <Text style={styles.buttonText}>PROVIDE FEEDBACK</Text>
+                  </TouchableOpacity>
                 </View>
               )}
             </View>

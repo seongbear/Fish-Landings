@@ -34,7 +34,7 @@ GEAR_MAP = {
 }
 
 def construct_fisherman_prompt(prediction, drivers, raw_input):
-    # --- INTERNAL HELPER: Value Decoder ---
+    # --- 1. INTERNAL HELPER: Safe Parsing ---
     def get_readable_value(key, value):
         try:
             val_int = int(value)
@@ -49,46 +49,52 @@ def construct_fisherman_prompt(prediction, drivers, raw_input):
             return GEAR_MAP.get(val_int, f"Gear #{val_int}")
         return value 
 
-    # --- 1. GUARDRAIL: Verdict Logic ---
-    try:
-        pred_val = float(prediction)
-    except:
-        pred_val = 0.0
+    def safe_float(val, default=0.0):
+        try: return float(val)
+        except: return default
 
-    if pred_val < 0.5:
-        verdict_status = "LOW CATCH (Challenging)"
-        verdict_tone = "Cautionary"
-    elif pred_val < 1.5:
-        verdict_status = "AVERAGE CATCH (Moderate)"
-        verdict_tone = "Neutral"
-    else:
-        verdict_status = "HIGH CATCH (Favorable)"
-        verdict_tone = "Encouraging"
-
-    # --- 2. SEASONAL CONTEXT ---
-    month = raw_input.get('month', 0)
-    try: month = int(month)
-    except: month = 0
-        
-    if month in [11, 12, 1, 2]:
-        season_name = "Northeast Monsoon"
-        season_desc = "Rough seas"
-    elif month in [5, 6, 7, 8]:
-        season_name = "Southwest Monsoon"
-        season_desc = "Occasional squalls"
-    else:
-        season_name = "Inter-Monsoon"
-        season_desc = "Variable winds"
-
-    # --- 3. DATA EXTRACTION ---
-    wind_speed = raw_input.get('wind_speed', 'Unknown')
-    temperature = raw_input.get('temperature', 'Unknown')
-    
-    # Extract State Name for Search Context
+    # --- 2. EXTRACT & SANITIZE CONTEXT ---
     state_id = raw_input.get('state', -2)
     state_name = STATE_MAP.get(int(state_id), "Malaysia")
+    
+    species_id = raw_input.get('species', -2)
+    species_name = SPECIES_MAP.get(int(species_id), "Fish")
 
-    # --- 4. PROCESS DRIVERS ---
+    # --- 3. WEATHER EXTRACTION ---
+    wind_spd = safe_float(raw_input.get('wind_speed'), 0)
+    pressure_val = safe_float(raw_input.get('pressure'), 1010)
+    
+    # GUARDRAIL: Safety Kill Switch
+    is_storm = False
+    safety_override_msg = ""
+    
+    if wind_spd > 40: # ~22 knots
+        is_storm = True
+        safety_override_msg = "WARNING: DANGEROUS WIND DETECTED."
+    elif pressure_val < 996: 
+        is_storm = True
+        safety_override_msg = "WARNING: STORM PRESSURE DETECTED."
+
+    # Simple Weather Summary
+    weather_summary = (
+        f"Wind: {raw_input.get('wind_speed', 'N/A')} km/h, "
+        f"Temp: {raw_input.get('temperature', 'N/A')}°C, "
+        f"Pressure: {raw_input.get('pressure', 'N/A')} hPa"
+    )
+
+    # --- 4. VERDICT LOGIC ---
+    pred_val = safe_float(prediction, 0.0)
+
+    if is_storm:
+        verdict_status = "NO GO (Storm)"
+    elif pred_val < 0.5:
+        verdict_status = "LOW CATCH"
+    elif pred_val < 1.5:
+        verdict_status = "AVERAGE CATCH"
+    else:
+        verdict_status = "HIGH CATCH"
+
+    # --- 5. DRIVER PROCESSING ---
     pos_factors = []
     neg_factors = []
     sorted_drivers = sorted(drivers, key=lambda x: abs(x.get('shap_impact', 0)), reverse=True)
@@ -96,64 +102,68 @@ def construct_fisherman_prompt(prediction, drivers, raw_input):
     for driver in sorted_drivers:
         feat_raw = driver.get('feature', driver.get('name', 'Unknown'))
         feature_name = str(feat_raw).replace('_', ' ').title()
-        raw_val = driver.get('model_input_value', driver.get('value', 'N/A'))
-        readable_val = get_readable_value(feat_raw, raw_val)
-        shap_val = driver.get('shap_impact', driver.get('shap_value', 0))
+        readable_val = get_readable_value(feat_raw, driver.get('model_input_value', 'N/A'))
+        shap_val = driver.get('shap_impact', 0)
         
-        factor_str = f"{feature_name}: {readable_val}"
+        factor_str = f"{feature_name} ({readable_val})"
         
         if abs(shap_val) > 0.0001: 
-            if shap_val > 0:
-                pos_factors.append(factor_str)
-            else:
-                neg_factors.append(factor_str)
-    
-    if not pos_factors and not neg_factors and len(sorted_drivers) > 0:
-        top = sorted_drivers[0]
-        readable = get_readable_value(top.get('feature'), top.get('model_input_value'))
-        msg = f"{top.get('feature')} ({readable})"
-        if top.get('shap_impact', 0) > 0: pos_factors.append(msg)
-        else: neg_factors.append(msg)
-
+            if shap_val > 0: pos_factors.append(factor_str)
+            else: neg_factors.append(factor_str)
+            
     pos_text = ", ".join(pos_factors[:3]) if pos_factors else "None"
     neg_text = ", ".join(neg_factors[:3]) if neg_factors else "None"
 
-    # --- 5. PROMPT WITH "REFERENCES" SECTION ---
+    # --- 6. THE MODIFIED PROMPT ---
     prompt = f"""
-You are an expert Fisheries Consultant with access to Google Search.
+You are an expert Captain Advisor. 
+Your goal is to explain the forecast to a fisherman in simple, plain language.
 
---- INSTRUCTIONS ---
-* **Tone:** Professional and {verdict_tone}.
-* **Verdict:** You MUST state the catch is **{verdict_status}**.
-* **Length:** Keep it short (under 150 words).
-* **Tools:** You MUST use Google Search to verify safety advice if the weather is extreme.
+--- STRICT RULES ---
+1. **Simple Words Only:** Do not use words like "variables", "correlation", "data", or "SHAP". Use words like "Causes", "Good", "Bad", "Strong".
+2. **Be Direct:** Keep sentences short and easy to understand. **Under 200 words.**
+3. **Safety First:** If Wind > 40km/h, tell them to STAY HOME.
+4. **No Guessing:** If you can't find the price on Google, say "Price unknown".
 
---- TRIP DATA ---
+--- TRIP INFO ---
+* **Target:** {species_name}
 * **Location:** {state_name}
+* **Forecast:** {pred_val:.2f} tonnes
 * **Verdict:** {verdict_status}
-* **Season:** {season_name} ({season_desc})
-* **Weather:** Wind: {wind_speed}, Temp: {temperature}
-* **Positive Drivers:** {pos_text}
-* **Negative Drivers:** {neg_text}
+* **Safety Warning:** {safety_override_msg if is_storm else "None"}
+* **Weather:** {weather_summary}
+* **What Helps (+):** {pos_text}
+* **What Hurts (-):** {neg_text}
+
+--- REQUIRED SEARCHES ---
+Search Google for:
+1. "Wholesale price for {species_name} per kg in {state_name} for the last 3 months" (Current Price)
+2. "Amaran angin kencang {state_name} METMalaysia" (Safety)
+3. "Harga diesel Malaysia terkini" (Fuel)
 
 --- REPORT TEMPLATE ---
 
-**1. Forecast Summary**
-State the **Verdict**. Mention the **Season** and the current weather conditions in **{state_name}**.
+**1. 💰 Is it Worth It? (Money)**
+* **Verdict:** {verdict_status}
+* **Market Check:** Search for the price of **{species_name}** for the last 3 months.
+    * If Price is HIGH + Catch is LOW: "You might make money because the price is high."
+    * If Price is LOW + Catch is LOW: "Not worth the fuel cost today."
+* **Fuel:** Mention if fuel is expensive right now.
 
-**2. Detailed Analysis**
-Explain *why* the catch is predicted this way using the Positive and Negative drivers listed above.
+**2. 🔬 Why? (Simple Explanation but in Scientific)**
+* Explain simply why the catch is {verdict_status}.
+* Talk about the **Weather** ({weather_summary}).
+* Mention what is **Helping** ({pos_text}) and what is **Hurting** ({neg_text}).
+* *Example:* "The catch is low because the strong wind makes it hard for fish to school."
 
-**3. Captain's Advice**
-Give one short, practical tip based on the **Negative Drivers** and **Current Weather**.
-* **Search Requirement:** Use Google Search to check if there are any specific marine warnings or relevant fuel price trends in {state_name} that reinforce this advice.
-* *Example:* "Since the wind is high ({wind_speed}), avoid open waters. Current advisories for {state_name} also warn of rough seas."
+**3. ⚓ Safety & Tip**
+* Check METMalaysia warnings. Is it safe?
+* Give one simple tip to fix the "What Hurts" factors.
 
-**4. References**
-* List the specific URLs of the websites you visited to verify the advice (e.g., METMalaysia, fuel price sites, etc).
-* Format: [Source Name](URL)
+**4. Captain's Decision**
+* One sentence: "GO" or "NO GO" and the main reason.
 
-Write the report now:
+Write the report now.
     """
     
     return prompt
