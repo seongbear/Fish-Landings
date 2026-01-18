@@ -33,89 +33,127 @@ GEAR_MAP = {
     13: "Stationary Traps", 14: "Trawl Nets", -2: "Unknown Gear"
 }
 
-# --- HELPER: Prompt Constructor (REQUIRED) ---
 def construct_fisherman_prompt(prediction, drivers, raw_input):
-    """
-    Builds a prompt with decoded values (Strings instead of Integers) and scientific context.
-    """
-    
     # --- INTERNAL HELPER: Value Decoder ---
     def get_readable_value(key, value):
-        # Try to convert to int for lookup, otherwise return as is
         try:
             val_int = int(value)
         except (ValueError, TypeError):
             return value 
-
-        if key == 'species':
+        key_norm = str(key).lower().replace(' ', '_')
+        if 'species' in key_norm:
             return SPECIES_MAP.get(val_int, f"Species #{val_int}")
-        elif key == 'state':
+        elif 'state' in key_norm:
             return STATE_MAP.get(val_int, f"State #{val_int}")
-        elif key == 'gear_type':
+        elif 'gear' in key_norm:
             return GEAR_MAP.get(val_int, f"Gear #{val_int}")
         return value 
 
-    # 1. Format SHAP Drivers (The "Why")
-    drivers_text = ""
-    for driver in drivers:
-        # Robustly get feature name (handles 'feature' or 'name' keys)
-        feat_raw = driver.get('feature', driver.get('name', 'Unknown Factor'))
-        feature_name = str(feat_raw).lower() 
-        
-        raw_val = driver.get('value', 'N/A')
-        readable_val = get_readable_value(feature_name, raw_val)
-        
-        # Determine Impact Direction (Logic: SHAP > 0 = Good for catch)
-        shap = driver.get('shap_value', 0)
-        if shap > 0:
-            impact_desc = "POSITIVE (Increases Catch)"
-        elif shap < 0:
-            impact_desc = "NEGATIVE (Decreases Catch)"
-        else:
-            impact_desc = "NEUTRAL"
+    # --- 1. GUARDRAIL: Verdict Logic ---
+    try:
+        pred_val = float(prediction)
+    except:
+        pred_val = 0.0
 
-        drivers_text += (
-            f"- Factor: {feat_raw}\n"
-            f"  Value: {readable_val}\n"
-            f"  Effect: {impact_desc}\n"
-        )
+    if pred_val < 0.5:
+        verdict_status = "LOW CATCH (Challenging)"
+        verdict_tone = "Cautionary"
+    elif pred_val < 1.5:
+        verdict_status = "AVERAGE CATCH (Moderate)"
+        verdict_tone = "Neutral"
+    else:
+        verdict_status = "HIGH CATCH (Favorable)"
+        verdict_tone = "Encouraging"
 
-    # 2. Format Raw Inputs (The "Context")
-    # We filter out 'prediction', 'id', etc. to avoid redundancy in the prompt
-    context_text = ""
-    excluded_keys = ['id', 'created_at', 'prediction', 'shap_values']
+    # --- 2. SEASONAL CONTEXT ---
+    month = raw_input.get('month', 0)
+    try: month = int(month)
+    except: month = 0
+        
+    if month in [11, 12, 1, 2]:
+        season_name = "Northeast Monsoon"
+        season_desc = "Rough seas"
+    elif month in [5, 6, 7, 8]:
+        season_name = "Southwest Monsoon"
+        season_desc = "Occasional squalls"
+    else:
+        season_name = "Inter-Monsoon"
+        season_desc = "Variable winds"
+
+    # --- 3. DATA EXTRACTION ---
+    wind_speed = raw_input.get('wind_speed', 'Unknown')
+    temperature = raw_input.get('temperature', 'Unknown')
     
-    for key, value in raw_input.items():
-        if key not in excluded_keys: 
-            readable_val = get_readable_value(key, value)
-            formatted_key = key.replace('_', ' ').title()
-            context_text += f"- {formatted_key}: {readable_val}\n"
+    # Extract State Name for Search Context
+    state_id = raw_input.get('state', -2)
+    state_name = STATE_MAP.get(int(state_id), "Malaysia")
 
-    # 3. The Prompt Template
+    # --- 4. PROCESS DRIVERS ---
+    pos_factors = []
+    neg_factors = []
+    sorted_drivers = sorted(drivers, key=lambda x: abs(x.get('shap_impact', 0)), reverse=True)
+
+    for driver in sorted_drivers:
+        feat_raw = driver.get('feature', driver.get('name', 'Unknown'))
+        feature_name = str(feat_raw).replace('_', ' ').title()
+        raw_val = driver.get('model_input_value', driver.get('value', 'N/A'))
+        readable_val = get_readable_value(feat_raw, raw_val)
+        shap_val = driver.get('shap_impact', driver.get('shap_value', 0))
+        
+        factor_str = f"{feature_name}: {readable_val}"
+        
+        if abs(shap_val) > 0.0001: 
+            if shap_val > 0:
+                pos_factors.append(factor_str)
+            else:
+                neg_factors.append(factor_str)
+    
+    if not pos_factors and not neg_factors and len(sorted_drivers) > 0:
+        top = sorted_drivers[0]
+        readable = get_readable_value(top.get('feature'), top.get('model_input_value'))
+        msg = f"{top.get('feature')} ({readable})"
+        if top.get('shap_impact', 0) > 0: pos_factors.append(msg)
+        else: neg_factors.append(msg)
+
+    pos_text = ", ".join(pos_factors[:3]) if pos_factors else "None"
+    neg_text = ", ".join(neg_factors[:3]) if neg_factors else "None"
+
+    # --- 5. PROMPT WITH "REFERENCES" SECTION ---
     prompt = f"""
-    You are a wise and friendly fisheries scientist assisting fishermen in Malaysia.
-    
-    YOUR GOAL:
-    Explain the forecasted fish catch volume by connecting the environmental data to fish behavior. Use simple scientific reasoning (e.g., how water temperature affects fish hunger, or how wind affects boat stability/water mixing).
+You are an expert Fisheries Consultant with access to Google Search.
 
-    THE FORECAST DATA:
-    ----------------
-    **Predicted Catch:** {prediction:.5f} Tonnes
-    
-    **Trip Conditions:**
-    {context_text}
-    
-    **Top Influencing Factors (Why the model predicted this):**
-    {drivers_text}
-    ----------------
+--- INSTRUCTIONS ---
+* **Tone:** Professional and {verdict_tone}.
+* **Verdict:** You MUST state the catch is **{verdict_status}**.
+* **Length:** Keep it short (under 150 words).
+* **Tools:** You MUST use Google Search to verify safety advice if the weather is extreme.
 
-    GUIDELINES:
-    1. Keep it under 300 words.
-    2. Use simple English.
-    3. Start directly with the result (e.g., "Good catch expected..." or "Catch might be low...").
-    4. Mention the main reason briefly (e.g., "due to warm water" or "because wind is strong").
-    5. Do not use technical terms or complex sentences.
+--- TRIP DATA ---
+* **Location:** {state_name}
+* **Verdict:** {verdict_status}
+* **Season:** {season_name} ({season_desc})
+* **Weather:** Wind: {wind_speed}, Temp: {temperature}
+* **Positive Drivers:** {pos_text}
+* **Negative Drivers:** {neg_text}
 
-    Write the short summary now:
+--- REPORT TEMPLATE ---
+
+**1. Forecast Summary**
+State the **Verdict**. Mention the **Season** and the current weather conditions in **{state_name}**.
+
+**2. Detailed Analysis**
+Explain *why* the catch is predicted this way using the Positive and Negative drivers listed above.
+
+**3. Captain's Advice**
+Give one short, practical tip based on the **Negative Drivers** and **Current Weather**.
+* **Search Requirement:** Use Google Search to check if there are any specific marine warnings or relevant fuel price trends in {state_name} that reinforce this advice.
+* *Example:* "Since the wind is high ({wind_speed}), avoid open waters. Current advisories for {state_name} also warn of rough seas."
+
+**4. References**
+* List the specific URLs of the websites you visited to verify the advice (e.g., METMalaysia, fuel price sites, etc).
+* Format: [Source Name](URL)
+
+Write the report now:
     """
+    
     return prompt

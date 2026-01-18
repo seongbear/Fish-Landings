@@ -21,7 +21,7 @@ class MLModelService:
     def _load_ml_artifacts(self):
         print("Loading ML artifacts...")
         try:
-            self.model = joblib.load(os.path.join(ARTIFACT_PATH, 'lgbm_fisheries_model.pkl'))
+            self.model = joblib.load(os.path.join(ARTIFACT_PATH, 'lgbm_fisheries_model_v2.pkl'))
             self.scaler_features = joblib.load(os.path.join(ARTIFACT_PATH, 'scaler_features.pkl'))
             self.scaler_target = joblib.load(os.path.join(ARTIFACT_PATH, 'scaler_target.pkl'))
             self.explainer = joblib.load(os.path.join(ARTIFACT_PATH, 'shap_explainer.pkl'))
@@ -83,10 +83,14 @@ class MLModelService:
             raise e
     
     def explain(self, input_data: dict):
+        """
+        Generates plots AND structured data for LLM analysis.
+        """
         try:
             df_model = self._prepare_data(input_data)
             shap_values = self.explainer(df_model)
 
+            # --- 1. Generate Images (Base64) ---
             # Waterfall Plot
             plt.figure(figsize=(10, 6), dpi=100)
             shap.plots.waterfall(shap_values[0], show=False)
@@ -111,17 +115,32 @@ class MLModelService:
             buf_force.seek(0)
             force_str = base64.b64encode(buf_force.read()).decode('utf-8')
 
-            # Top Drivers
+            # --- 2. Generate Structured Data for LLM ---
             feature_names = df_model.columns.tolist()
-            values = shap_values.values[0]
-            contributions = sorted(zip(feature_names, values), key=lambda x: abs(x[1]), reverse=True)
-            
+            raw_input_values = df_model.iloc[0].tolist() # These are scaled values used by model
+            impact_values = shap_values.values[0].tolist()
+            base_value = float(shap_values.base_values[0])
+
+            # Combine into a clean list of dictionaries
+            llm_analysis_data = []
+            for name, raw_val, impact in zip(feature_names, raw_input_values, impact_values):
+                llm_analysis_data.append({
+                    "feature": name,
+                    "model_input_value": round(raw_val, 4), # Scaled value (or raw if not scaled)
+                    "shap_impact": round(impact, 4),        # The + or - push
+                    "direction": "POSITIVE" if impact > 0 else "NEGATIVE"
+                })
+
+            # Sort by impact magnitude (Absolute value)
+            llm_analysis_data.sort(key=lambda x: abs(x['shap_impact']), reverse=True)
+
             return {
-                'base_value': float(shap_values.base_values[0]),
-                'top_3_drivers': contributions[:3],
+                'base_value': base_value,
+                'plot_analysis_data': llm_analysis_data,  # <--- PASS THIS TO LLM
                 'waterfall_plot': waterfall_str,
                 'force_plot': force_str
             }
+            
         except Exception as e:
             print(f"Explanation Error: {e}")
             raise e

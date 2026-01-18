@@ -8,7 +8,6 @@
     />
     <title>FisheriesCast Mobile</title>
 
-    <!-- CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -22,7 +21,6 @@
       rel="stylesheet"
     />
 
-    <!-- JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
@@ -33,7 +31,6 @@
         --secondary: #6900c7;
         --success: #00ac69;
         --warning: #f4a100;
-        --danger: #e81500;
         --bg: #f2f6fc;
         --card: #ffffff;
         --text: #1e293b;
@@ -56,44 +53,82 @@
 
       /* Navbar */
       .navbar {
-        backdrop-filter: blur(12px);
-        background: rgba(255, 255, 255, 0.85);
+        background: #fff;
         border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        position: sticky;
-        top: 0;
-        z-index: 1000;
+        padding-top: 10px;
+        padding-bottom: 10px;
       }
 
       .navbar-brand {
-        font-weight: 700;
+        font-weight: 800;
         color: var(--primary);
+        font-size: 1.1rem;
         display: flex;
-        gap: 8px;
         align-items: center;
+        gap: 8px;
       }
 
-      /* FAB */
-      .fab-container {
-        position: fixed;
-        right: 20px;
-        bottom: calc(20px + env(safe-area-inset-bottom));
-        z-index: 1050;
+      /* Top Filter Bar */
+      .filter-bar {
+        background: #fff;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        position: sticky;
+        top: 0;
+        z-index: 1020;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
       }
 
-      .btn-fab {
-        width: 56px;
-        height: 56px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        color: #fff;
+      /* Hide Scrollbar */
+      .filter-bar::-webkit-scrollbar {
+        display: none;
+      }
+      .filter-bar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+
+      .filter-item {
+        display: inline-block;
+        width: 130px; /* Fixed width for consistency */
+        margin-right: 8px;
+        background: var(--bg);
+        border-radius: 12px;
+        padding: 6px 10px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+      }
+
+      .filter-label {
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        color: var(--muted);
+        font-weight: 700;
+        margin-bottom: 2px;
+        display: block;
+      }
+
+      .filter-select {
         border: none;
-        font-size: 1.3rem;
-        box-shadow: 0 4px 12px rgba(0, 97, 242, 0.4);
-        transition: transform 0.15s;
+        background: transparent;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text);
+        width: 100%;
+        padding: 0;
+        outline: none;
+        cursor: pointer;
       }
 
-      .btn-fab:active {
-        transform: scale(0.9);
+      /* Status Line */
+      .status-line {
+        font-size: 0.75rem;
+        color: var(--muted);
+        padding: 8px 16px 0 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
       }
 
       /* KPI Cards */
@@ -104,13 +139,7 @@
         box-shadow: var(--shadow);
         position: relative;
         border-left: 4px solid;
-        transition: transform 0.15s;
       }
-
-      .kpi-card:active {
-        transform: scale(0.98);
-      }
-
       .kpi-card.blue {
         border-color: var(--primary);
       }
@@ -130,17 +159,14 @@
         color: var(--muted);
         font-weight: 600;
       }
-
       .kpi-value {
         font-size: 1.5rem;
         font-weight: 700;
       }
-
       .kpi-unit {
         font-size: 0.75rem;
         color: var(--muted);
       }
-
       .kpi-icon {
         position: absolute;
         right: 10px;
@@ -157,34 +183,13 @@
         box-shadow: var(--shadow);
         margin-bottom: 1.5rem;
       }
-
       .chart-title {
         font-size: 0.95rem;
         font-weight: 700;
       }
-
       .chart-subtitle {
         font-size: 0.75rem;
         color: var(--muted);
-      }
-
-      select {
-        min-height: 44px;
-        font-size: 0.85rem;
-      }
-
-      /* Offcanvas */
-      .offcanvas-bottom {
-        border-radius: 24px 24px 0 0;
-        max-height: 85vh;
-      }
-
-      .drag-handle {
-        width: 40px;
-        height: 4px;
-        background: #e2e8f0;
-        border-radius: 2px;
-        margin: 12px auto;
       }
 
       /* Loader */
@@ -204,30 +209,65 @@
   <body>
     <div id="loader">
       <div class="spinner-border text-primary"></div>
-      <p class="small fw-bold text-muted mt-3">Loading Dashboard...</p>
+      <p class="small fw-bold text-muted mt-3">Analyzing Dataset...</p>
     </div>
 
     <nav class="navbar px-3">
       <span class="navbar-brand">
         <i class="bi bi-tsunami"></i> FisheriesCast
       </span>
-      <span class="badge bg-light border text-dark" id="total-records"
-        >0 Rows</span
+      <button
+        class="btn btn-sm btn-light text-primary fw-bold"
+        onclick="resetFilters()"
       >
+        Reset All
+      </button>
     </nav>
 
-    <div class="fab-container">
-      <button
-        class="btn-fab"
-        data-bs-toggle="offcanvas"
-        data-bs-target="#filterDrawer"
-      >
-        <i class="bi bi-sliders2"></i>
-      </button>
+    <div class="filter-bar d-flex px-3 py-2">
+      <div class="filter-item">
+        <label class="filter-label">Target Species</label>
+        <select
+          id="filter-species"
+          class="filter-select"
+          onchange="applyFilters()"
+        ></select>
+      </div>
+
+      <div class="filter-item">
+        <label class="filter-label">Year</label>
+        <select
+          id="filter-year"
+          class="filter-select"
+          onchange="applyFilters()"
+        ></select>
+      </div>
+
+      <div class="filter-item">
+        <label class="filter-label">State</label>
+        <select
+          id="filter-state"
+          class="filter-select"
+          onchange="applyFilters()"
+        ></select>
+      </div>
+
+      <div class="filter-item">
+        <label class="filter-label">Gear Type</label>
+        <select
+          id="filter-gear"
+          class="filter-select"
+          onchange="applyFilters()"
+        ></select>
+      </div>
+    </div>
+
+    <div class="status-line">
+      <span id="data-status">Loading data...</span>
+      <i class="bi bi-bar-chart-fill text-primary"></i>
     </div>
 
     <div class="container-fluid px-3 py-3">
-      <!-- KPIs -->
       <div class="row g-2 mb-4">
         <div class="col-6">
           <div class="kpi-card blue">
@@ -263,14 +303,17 @@
         </div>
       </div>
 
-      <!-- Charts -->
       <div class="chart-card">
         <div class="d-flex justify-content-between align-items-center mb-2">
           <div>
             <div class="chart-title">Environment Impact</div>
             <div class="chart-subtitle">Correlation</div>
           </div>
-          <select id="scatter-metric" onchange="updateScatterChart()">
+          <select
+            id="scatter-metric"
+            class="form-select form-select-sm w-auto border-0 bg-light fw-bold"
+            onchange="updateScatterChart()"
+          >
             <option value="temperature">Temp</option>
             <option value="pressure">Pressure</option>
             <option value="wind_speed">Wind</option>
@@ -291,33 +334,8 @@
       </div>
     </div>
 
-    <!-- Filter Drawer -->
-    <div class="offcanvas offcanvas-bottom" id="filterDrawer">
-      <div class="drag-handle"></div>
-      <div class="offcanvas-body">
-        <select id="filter-species" class="form-select mb-2"></select>
-        <select id="filter-year" class="form-select mb-2"></select>
-        <select id="filter-state" class="form-select mb-2"></select>
-        <select id="filter-gear" class="form-select mb-3"></select>
-
-        <button
-          class="btn btn-primary w-100 mb-2"
-          onclick="applyFilters(); bootstrap.Offcanvas.getInstance(filterDrawer).hide();"
-        >
-          View Results
-        </button>
-        <button
-          class="btn btn-light text-danger w-100"
-          onclick="resetFilters()"
-        >
-          Reset
-        </button>
-      </div>
-    </div>
-
     <script>
-      const CSV_PATH =
-        "/static/data/final_combined_fisheries_weather_dataset.csv";
+      const CSV_PATH = "/static/data/filtered.csv";
       let globalData = [],
         filteredData = [];
       let charts = {};
@@ -332,11 +350,22 @@
           complete: (r) => {
             globalData = r.data;
             initFilters(globalData);
+            setSmartDefaults(globalData);
             applyFilters();
+
             el("loader").classList.add("d-none");
+            const loadTime = performance.now();
+            console.info(`Dashboard loaded in: ${loadTime.toFixed(2)} ms`);
           },
         });
       };
+
+      function setSmartDefaults(data) {
+        el("filter-year").value = "all";
+        el("filter-species").value = "all";
+        el("filter-state").value = "all";
+        el("filter-gear").value = "all";
+      }
 
       function initFilters(d) {
         fill("filter-species", uniq(d, "species"));
@@ -345,20 +374,31 @@
         fill("filter-gear", uniq(d, "gear_type"));
       }
 
-      const uniq = (d, k) => [
-        "all",
-        ...new Set(d.map((x) => x[k]).filter(Boolean)),
-      ];
+      const uniq = (d, k) =>
+        ["all", ...new Set(d.map((x) => x[k]).filter(Boolean)).values()].sort(
+          (a, b) => (a === "all" ? -1 : b === "all" ? 1 : a < b ? -1 : 1)
+        );
+
       const fill = (id, a) => a.forEach((v) => el(id).add(new Option(v, v)));
 
       function applyFilters() {
+        const fSpecies = el("filter-species").value;
+        const fYear = el("filter-year").value;
+        const fState = el("filter-state").value;
+        const fGear = el("filter-gear").value;
+
         filteredData = globalData.filter((d) => {
-          return ["species", "year", "state", "gear_type"].every((k) => {
-            const v = el("filter-" + k.replace("_type", "")).value;
-            return v === "all" || d[k] == v;
-          });
+          return (
+            (fSpecies === "all" || d.species == fSpecies) &&
+            (fYear === "all" || d.year == fYear) &&
+            (fState === "all" || d.state == fState) &&
+            (fGear === "all" || d.gear_type == fGear)
+          );
         });
-        el("total-records").innerText = `${filteredData.length} Rows`;
+
+        // Update the status line instead of the badge
+        el("data-status").innerText = `Showing ${filteredData.length} records`;
+
         updateKPIs();
         updateScatterChart();
         updateSeasonChart();
@@ -366,7 +406,9 @@
       }
 
       function resetFilters() {
-        document.querySelectorAll("select").forEach((s) => (s.value = "all"));
+        document
+          .querySelectorAll(".filter-select")
+          .forEach((s) => (s.value = "all"));
         applyFilters();
       }
 
@@ -378,12 +420,22 @@
           tc = 0,
           pc = 0,
           wc = 0;
-        filteredData.forEach((d) => {
+        for (let i = 0; i < filteredData.length; i++) {
+          const d = filteredData[i];
           c += d.landings || 0;
-          if (d.temperature) (t += d.temperature), tc++;
-          if (d.pressure) (p += d.pressure), pc++;
-          if (d.wind_speed) (w += d.wind_speed), wc++;
-        });
+          if (d.temperature) {
+            t += d.temperature;
+            tc++;
+          }
+          if (d.pressure) {
+            p += d.pressure;
+            pc++;
+          }
+          if (d.wind_speed) {
+            w += d.wind_speed;
+            wc++;
+          }
+        }
         el("kpi-catch").innerText = Math.round(c).toLocaleString();
         el("kpi-temp").innerText = tc ? (t / tc).toFixed(1) + "°" : "-";
         el("kpi-pressure").innerText = pc ? Math.round(p / pc) : "-";
@@ -392,12 +444,17 @@
 
       function updateScatterChart() {
         const m = el("scatter-metric").value;
-        const data = filteredData
-          .filter((d) => d[m] && d.landings)
-          .map((d) => ({ x: d[m], y: d.landings }));
+        let rawData = filteredData.filter((d) => d[m] && d.landings);
+
+        if (rawData.length > 2000) {
+          const step = Math.ceil(rawData.length / 2000);
+          rawData = rawData.filter((_, i) => i % step === 0);
+        }
+
+        const data = rawData.map((d) => ({ x: d[m], y: d.landings }));
 
         if (!charts.scatter) {
-          charts.scatter = new Chart(scatterChart, {
+          charts.scatter = new Chart(el("scatterChart"), {
             type: "scatter",
             data: {
               datasets: [
@@ -413,21 +470,20 @@
       }
 
       function updateSeasonChart() {
-        const m = Array(12).fill(0),
-          c = Array(12).fill(0),
-          n = Array(12).fill(0);
-        filteredData.forEach((d) => {
-          if (d.month) {
-            c[d.month - 1] += d.landings || 0;
-            n[d.month - 1]++;
-          }
-        });
+        const c = Array(12).fill(0);
+        for (let i = 0; i < filteredData.length; i++) {
+          const d = filteredData[i];
+          if (d.month) c[d.month - 1] += d.landings || 0;
+        }
+
         if (!charts.season) {
-          charts.season = new Chart(seasonChart, {
+          charts.season = new Chart(el("seasonChart"), {
             type: "bar",
             data: {
               labels: "JFMAMJJASOND".split(""),
-              datasets: [{ data: c, backgroundColor: "#e2e8f0" }],
+              datasets: [
+                { label: "Catch", data: c, backgroundColor: "#e2e8f0" },
+              ],
             },
             options: { responsive: true, maintainAspectRatio: false },
           });
@@ -439,20 +495,60 @@
 
       function updateSpeciesChart() {
         const map = {};
-        filteredData.forEach(
-          (d) => (map[d.species] = (map[d.species] || 0) + (d.landings || 0))
-        );
+
+        // 1. Aggregate data
+        for (let i = 0; i < filteredData.length; i++) {
+          const d = filteredData[i];
+          map[d.species] = (map[d.species] || 0) + (d.landings || 0);
+        }
+
+        // 2. Sort and Take Top 10
         const top = Object.entries(map)
           .sort((a, b) => b[1] - a[1])
-          .slice(0, 5);
+          .slice(0, 10); // <--- Matches your requirement for 10 species
+
+        // 3. Define 10-Color Palette
+        const palette = [
+          "#0061f2", // Blue (Primary)
+          "#00ac69", // Green (Success)
+          "#f4a100", // Orange (Warning)
+          "#6900c7", // Purple (Secondary)
+          "#17a2b8", // Cyan (Info)
+          "#e81500", // Red (Danger)
+          "#d63384", // Pink
+          "#ffc107", // Yellow
+          "#20c997", // Teal
+          "#5a5c69", // Dark Grey
+        ];
+
+        // 4. Render or Update Chart
         if (!charts.species) {
-          charts.species = new Chart(speciesChart, {
+          charts.species = new Chart(el("speciesChart"), {
             type: "doughnut",
             data: {
               labels: top.map((x) => x[0]),
-              datasets: [{ data: top.map((x) => x[1]) }],
+              datasets: [
+                {
+                  data: top.map((x) => x[1]),
+                  backgroundColor: palette,
+                  borderWidth: 2,
+                  borderColor: "#ffffff",
+                },
+              ],
             },
-            options: { responsive: true, maintainAspectRatio: false },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  position: "right",
+                  labels: {
+                    boxWidth: 10, // Reduced slightly to fit 10 items better
+                    font: { size: 10 },
+                  },
+                },
+              },
+            },
           });
         } else {
           charts.species.data.labels = top.map((x) => x[0]);

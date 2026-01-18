@@ -37,7 +37,7 @@ export const fetchUserProfileById = async (
           week_streak: false,
         };
 
-    // 3Return combined profile data
+    // Return combined profile data
     return {
       id: userSnap.id,
       name: userData.name,

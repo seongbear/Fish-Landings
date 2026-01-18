@@ -1,7 +1,27 @@
-import { ForecastPayload, LandingData } from "../screens/(tabs)/dashboard/types/landings";
-import { useAppStore } from "../store/store";
+import { ForecastPayload, LandingData, PlotAnalysisData } from "../screens/(tabs)/dashboard/types/landings";
+import { auth, firestore } from "../firebaseConfig";
+import { collection, doc, serverTimestamp, updateDoc, addDoc } from "firebase/firestore";
 
 const API_BASE_URL = process.env.API_BASE;
+
+// Structure inputs for Firestore schema 
+const formatInputForSchema = (payload: ForecastPayload) => {
+  return {
+    year: payload.year,
+    month: payload.month,
+    state: payload.state,
+    species: payload.species,
+    gear_type: payload.gear_type,
+    weather: {
+      temperature: payload.temperature,
+      wind_speed: payload.wind_speed,
+      humidity: payload.humidity,
+      pressure: payload.pressure,
+      uv_index: payload.uv_index,
+      dew_point: payload.dew_point,
+    }
+  }
+}
 
 export const getLandingsData = async (
   filters?: Record<string, string>, 
@@ -55,7 +75,7 @@ export const getLandingsData = async (
   return allData;
 };
 
-export const postForecastLandings = async (payload: ForecastPayload): Promise<number> =>{
+export const postForecastLandings = async (payload: ForecastPayload): Promise<{ prediction: number, docId?: string}> =>{
   try{
     const response = await fetch(`${API_BASE_URL}/forecast/predict`, {
       method: 'POST',
@@ -73,15 +93,39 @@ export const postForecastLandings = async (payload: ForecastPayload): Promise<nu
     }
 
     console.log("Forecast prediction result:", result);
-    return result.predicted_landings;
+
+    let newDocId: string | undefined;
+    try{
+      if (auth.currentUser){
+        const docRef = await addDoc(collection(firestore, "forecasts"), {
+          usedId: auth.currentUser.uid,
+          createdAt: serverTimestamp(),
+          inputs: formatInputForSchema(payload),
+          prediction: {
+            landings: result.predicted_landings,
+            unit: "tonnes",
+            model_version: "v1"
+          }
+        });
+        newDocId = docRef.id;
+        console.log("New document created with ID:", newDocId);
+      }
+    } catch (error) {
+      console.error("Error creating new document:", error);
+      throw error;
+    }
+    return {
+      prediction: result.predicted_landings,
+      docId: newDocId
+    };
   } catch (error) {
     console.error("Error posting forecast landings:", error);
     throw error;
   }
 }
 
-export const postSHAPExplain = async (payload: ForecastPayload) =>{
-  try{
+export const postSHAPExplain = async (payload: ForecastPayload, docId?: string) => {
+  try {
     const response = await fetch(`${API_BASE_URL}/forecast/explain`, {
       method: 'POST',
       headers: {
@@ -96,14 +140,52 @@ export const postSHAPExplain = async (payload: ForecastPayload) =>{
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    console.log("SHAP explanation result:", result.base_value, result.top_3_drivers);
-    // Return the specific fields we need for the UI
-    return {
+    console.log("SHAP explanation received");
+
+    // Prepare the object we want to return to the UI immediately
+    const uiReturnData = {
       base_value: result.base_value,
       drivers: result.top_3_drivers,
-      waterfall: result.waterfall_plot, // Base64 string
-      force: result.force_plot          // Base64 string
+      waterfall: result.waterfall_plot,
+      force: result.force_plot,
+      plot_analysis_data: result.plot_analysis_data
     };
+    
+    // --- FIRESTORE UPDATE ---
+    if (docId) {
+      try {
+        const forecastRef = doc(firestore, "forecasts", docId);
+
+        await updateDoc(forecastRef, {
+          explanation: {
+            base_value: result.base_value,
+            
+            // 1. Structure the Top 3 Drivers for easy query/display later
+            drivers: result.top_3_drivers.map((d: any) => ({
+              feature: d.feature || d.name,   // Handle different naming conventions
+              impact: d.shap_impact || d.value, 
+              value: d.model_input_value || 0,
+              direction: (d.shap_impact || d.value) > 0 ? "POSITIVE" : "NEGATIVE"
+            })),
+
+            // 2. Store the full analysis data (Array)
+            plot_analysis_data: result.plot_analysis_data,
+
+            // 3. Store the Base64 Images (String)
+            // Note: Ensure these don't exceed Firestore's 1MB limit
+            waterfall: result.waterfall_plot,
+            force: result.force_plot
+          }
+        });
+        console.log("Firestore updated with SHAP explanation (Images + Data).");
+
+      } catch (fsError) {
+        // Log error but don't block the UI
+        console.error("Failed to update Firestore explanation:", fsError);
+      }
+    }
+    // Return data for the UI
+    return uiReturnData;
 
   } catch (error) {
     console.error("Error posting SHAP explain request:", error);
@@ -113,34 +195,68 @@ export const postSHAPExplain = async (payload: ForecastPayload) =>{
 
 export const postLLMExplain = async (
   prediction: number,
-  drivers: Array<[string, number]>,
-  raw_input: ForecastPayload
-) => {
+  drivers: Array<PlotAnalysisData> | Array<any>, 
+  raw_input: ForecastPayload, 
+  docId?: string
+): Promise<string> => { 
   try {
-    // ✅ FIX: Correct spelling from "llm_explaination" to "llm_explanation"
     const response = await fetch(`${API_BASE_URL}/forecast/llm_explanation`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      // Ensure specific keys match what Python expects
       body: JSON.stringify({ prediction, drivers, raw_input }),
     });
 
-    // Error handling wrapper to catch non-JSON responses (like 404/500 HTML pages)
     const text = await response.text();
+    let explanationText = "";
+    
+    // 1. Parse Response
     try {
         const result = JSON.parse(text);
         if (!response.ok) {
             throw new Error(result.error || `HTTP error! status: ${response.status}`);
         }
         console.log("LLM explanation result:", result.explanation);
-        return result.explanation;
+        explanationText = result.explanation;
     } catch (e) {
-        // This prints the actual HTML if the server crashes, helping you debug
         console.error("Server returned non-JSON response:", text); 
         throw new Error(`Server Error: ${response.status} ${response.statusText}`);
     }
+
+    // 2. Update Firestore (Side Effect)
+    // We wrap this in a separate block so it doesn't block the UI return
+    if (docId && explanationText) {
+      try {
+        const forecastRef = doc(firestore, "forecasts", docId); // Use 'db' here
+        
+        await updateDoc(forecastRef, {
+          report: {
+            text: explanationText,
+            status: "success",
+            generatedAt: new Date().toISOString()
+          }
+        });
+        console.log("Firestore updated with LLM Report.");
+        
+      } catch (fsError) {
+        // Log error, but DO NOT throw. We still want to return the text to the user.
+        console.error("Failed to update Firestore explanation:", fsError);
+
+        // Optional: Try to mark as failed in DB, but don't break the UI
+        try {
+            const forecastRef = doc(firestore, "forecasts", docId);
+            await updateDoc(forecastRef, {
+                "report.status": "failed_save", // Update specific field
+                "report.error": fsError instanceof Error ? fsError.message : "Unknown error"
+            });
+        } catch (_) {}
+      }
+    }
+
+    // 3. CRITICAL FIX: Return the text here
+    // This ensures the UI gets the data even if Firestore fails or docId is missing
+    return explanationText;
 
   } catch (error) {
     console.error("Error posting LLM explain request:", error);

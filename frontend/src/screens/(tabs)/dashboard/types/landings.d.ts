@@ -28,3 +28,10 @@ export interface ForecastPayload {
     wind_speed: number;
     uv_index: number;
 }
+
+export interface PlotAnalysisData {
+    feature: string;
+    model_input_value: number;
+    shap_impact: number;
+    direction: string;
+}

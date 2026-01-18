@@ -5,12 +5,12 @@ import {
   postSHAPExplain, 
   postLLMExplain 
 } from '../../../../api/landingsApi';
-import { ForecastPayload } from '../types/landings'; 
+import { ForecastPayload, PlotAnalysisData } from '../types/landings'; 
 
 // 1. Interfaces
 export interface ExplanationData {
   base_value: number;
-  drivers: Array<[string, number]>;
+  drivers: PlotAnalysisData[];
   waterfall: string; 
   force: string;    
 }
@@ -23,21 +23,25 @@ export const useForecast = () => {
     const [llmExplanation, setLlmExplanation] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
 
-    // 3. Validation Helper (Prevents 422 Errors)
+    // 3. Validation Helper
     const validateInputs = (data: Partial<ForecastPayload>): string | null => {
         if (!data.species) return "Please select a Species.";
         if (!data.state) return "Please select a State.";
         if (!data.gear_type) return "Please select a Gear Type.";
         
-        // Logical checks
-        if (data.month !== undefined && (data.month < 1 || data.month > 12)) {
-            return "Month must be between 1 and 12.";
-        }
-        if (data.year !== undefined && (data.year < 1900 || data.year > 2100)) {
-            return "Please enter a valid year.";
-        }
-        if (data.humidity !== undefined && (data.humidity < 0 || data.humidity > 100)) {
-            return "Humidity must be between 0 and 100%.";
+        if (data.month !== undefined && (data.month < 1 || data.month > 12)) return "Month must be between 1 and 12.";
+        if (data.year !== undefined && (data.year < 2000 || data.year > 2050)) return "Year must be valid (2000-2050).";
+        
+        // Malaysia Specific Checks
+        if (data.humidity !== undefined && (data.humidity < 40 || data.humidity > 100)) return "Humidity is unrealistic (expect 40-100%).";
+        if (data.wind_speed !== undefined && (data.wind_speed < 0 || data.wind_speed > 150)) return "Wind Speed must be between 0 and 150 km/h.";
+        if (data.uv_index !== undefined && (data.uv_index < 0 || data.uv_index > 15)) return "UV Index must be between 0 and 15.";
+        if (data.temperature !== undefined && (data.temperature < 18 || data.temperature > 42)) return "Temperature is unrealistic (18°C - 42°C).";
+        if (data.pressure !== undefined && (data.pressure < 990 || data.pressure > 1020)) return "Pressure is unrealistic (990-1020 hPa).";
+        
+        if (data.dew_point !== undefined) {
+             if (data.dew_point < 15 || data.dew_point > 35) return "Dew Point is unrealistic.";
+             if (data.temperature !== undefined && data.dew_point > data.temperature) return "Dew Point cannot be higher than Temperature.";
         }
         return null;
     };
@@ -53,112 +57,63 @@ export const useForecast = () => {
         try {
             // --- A. Payload Preparation ---
             const payload: Partial<ForecastPayload> = {};
-
             (Object.keys(rawFormData) as Array<keyof ForecastPayload>).forEach((key) => {
                 const rawValue = rawFormData[key];
                 if (String(rawValue).trim() === '' || rawValue === undefined || rawValue === null) return;
-                
                 const parsedValue = parseFloat(String(rawValue));
-                if (!isNaN(parsedValue)) {
-                    payload[key] = parsedValue;
-                }
+                if (!isNaN(parsedValue)) payload[key] = parsedValue;
             });
 
-            // --- B. Frontend Validation ---
+            // --- B. Validation ---
             const validationError = validateInputs(payload);
-            if (validationError) {
-                // Stop here. Don't hit the server.
-                throw new Error(validationError); 
-            }
-
+            if (validationError) throw new Error(validationError); 
             const finalPayload = payload as ForecastPayload;
 
-            // --- C. Parallel API Calls ---
-            // Note: If one fails (e.g., SHAP), both will throw. 
-            const [predictedResponse, explanationData] = await Promise.all([
-                postForecastLandings(finalPayload),
-                postSHAPExplain(finalPayload)
-            ]);
-
-            // --- D. CRITICAL: Safe Response Parsing ---
-            // This fixes: "predicted_landings field is missing or not a number"
-            let finalValue: number;
-
-            // Check if response is null/undefined first
-            if (!predictedResponse) {
-                throw new Error("Server returned an empty response.");
-            }
-
-            if (typeof predictedResponse === 'number') {
-                finalValue = predictedResponse;
-            } 
-            else if (typeof predictedResponse === 'object' && 'predicted_landings' in predictedResponse) {
-                // Safely cast and extract
-                finalValue = Number((predictedResponse as any).predicted_landings);
-            } 
-            else {
-                // Fallback attempt to parse, or throw error if completely unrecognized
-                const parsed = parseFloat(String(predictedResponse));
-                if (isNaN(parsed)) {
-                    console.error("Invalid Response Structure:", predictedResponse);
-                    throw new Error("Invalid response format: Missing 'predicted_landings'.");
-                }
-                finalValue = parsed;
-            }
-
-            // Check for NaN one last time (e.g. if 'predicted_landings' was "error")
-            if (isNaN(finalValue)) {
-                throw new Error("Prediction result was not a valid number.");
-            }
-
-            // --- E. Update State ---
-            setPrediction(finalValue); 
+            // --- C. Step 1: PREDICT (Get Value + DocID) ---
+            // We await this FIRST because we need the docId for the next steps
+            const forecastResult = await postForecastLandings(finalPayload);
             
+            // Validate Result
+            if (!forecastResult || typeof forecastResult.prediction !== 'number') {
+                throw new Error("Invalid prediction result from server.");
+            }
+
+            const finalValue = forecastResult.prediction;
+            const docId = forecastResult.docId; // <--- Capture the Firestore ID
+
+            setPrediction(finalValue); // Update UI immediately
+
+            // --- D. Step 2: EXPLAIN (Update Doc with SHAP) ---
+            // Now we pass the docId so the explanation is saved to the same document
+            const explanationData = await postSHAPExplain(finalPayload, docId);
+
             if (explanationData) {
                 setExplanation({
                     base_value: explanationData.base_value,
-                    drivers: explanationData.drivers || [], // Safety fallback
+                    drivers: explanationData.drivers || [], 
                     waterfall: explanationData.waterfall || "",
                     force: explanationData.force || "",
                 });
-            }
 
-            // --- F. LLM Step (Sequential) ---
-            // Only proceed if we have valid drivers
-            if (explanationData && explanationData.drivers) {
-                const formattedDrivers = explanationData.drivers.map((d: [string, number]) => ({
-                    feature: d[0],
-                    value: d[1]
-                }));
-
-                // Run in background (don't block UI if this fails?) 
-                // Currently keeping it blocking to ensure consistency.
-                const llmResult = await postLLMExplain(
-                    finalValue,
-                    formattedDrivers,
-                    finalPayload
-                );
-                setLlmExplanation(llmResult);
+                // --- E. Step 3: LLM REPORT (Update Doc with Text) ---
+                if (explanationData.plot_analysis_data) {
+                    const llmResult = await postLLMExplain(
+                        finalValue,
+                        explanationData.plot_analysis_data,
+                        finalPayload,
+                        docId // <--- Pass docId here too
+                    );
+                    setLlmExplanation(llmResult);
+                }
             }
 
         } catch (err: any) {
             console.error("Forecast Execution Failed:", err);
             
-            // --- G. Error Categorization ---
             let userMessage = "An unexpected error occurred.";
-
-            // 1. Handling HTTP 422 (Validation from Server)
-            if (err.message && err.message.includes("422")) {
-                userMessage = "Invalid Data: Please check your input fields (State, Month, etc) and try again.";
-            }
-            // 2. Handling Connection Issues
-            else if (err.message && (err.message.includes("Network request failed") || err.message.includes("timeout"))) {
-                userMessage = "Connection Error: Please check your internet.";
-            }
-            // 3. Handling Custom Validation Errors
-            else if (err.message) {
-                userMessage = err.message;
-            }
+            if (err.message?.includes("422")) userMessage = "Invalid Data: Please check your input fields.";
+            else if (err.message?.includes("Network request failed")) userMessage = "Connection Error: Please check your internet.";
+            else if (err.message) userMessage = err.message;
 
             setError(userMessage);
             Alert.alert("Forecast Failed", userMessage);

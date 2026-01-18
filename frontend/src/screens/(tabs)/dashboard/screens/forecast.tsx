@@ -99,6 +99,26 @@ export const Forecast = () => {
     generateForecast(payload);
   };
 
+  const renderFormattedText = (text: string | null) => {
+    if (!text) return null;
+
+    // Split text by the markdown bold marker **
+    const parts = text.split(/\*\*(.*?)\*\*/g);
+
+    return parts.map((part, index) => {
+      // Odd indices correspond to the text that was inside **...**
+      if (index % 2 === 1) {
+        return (
+          <Text key={index} style={{ fontWeight: 'bold', color: '#000' }}>
+            {part}
+          </Text>
+        );
+      }
+      // Even indices are the normal text
+      return <Text key={index}>{part}</Text>;
+    });
+  };
+
   return (
     <Background disableTopEdge={true}>
       <View style={styles.container}>
@@ -167,12 +187,19 @@ export const Forecast = () => {
                     <Text style={styles.chartTitle}>Key Drivers</Text>
                     {explanation.drivers.map((d, i) => (
                       <View key={i} style={styles.driverRow}>
-                        <Text style={styles.driverName}>{i + 1}. {d[0]}</Text>
+                        {/* 1. FIX: Use 'd.feature' instead of 'd[0]' */}
+                        <Text style={styles.driverName}>
+                          {i + 1}. {d.feature}
+                        </Text>
+
+                        {/* 2. FIX: Use 'd.shap_impact' instead of 'd[1]' */}
                         <Text style={{ 
                           fontWeight: 'bold', 
-                          color: d[1] > 0 ? '#34C759' : '#FF3B30' 
+                          color: d.shap_impact > 0 ? '#34C759' : '#FF3B30' 
                         }}>
-                          {d[1] > 0 ? '+' : ''}{d[1].toFixed(10)}
+                          {d.shap_impact > 0 ? '+' : ''}
+                          {/* Optional: Limit decimals to keep UI clean */}
+                          {Number(d.shap_impact).toFixed(4)}
                         </Text>
                       </View>
                     ))}
@@ -202,7 +229,8 @@ export const Forecast = () => {
                   <View style={styles.card}>
                     <Text style={styles.chartTitle}>Explanation</Text>
                     <Text style={{ fontSize: 14, color: '#444', lineHeight: 20 }}>
-                      {llmExplanation}
+                      {/* Call the helper function here instead of raw text */}
+                      {renderFormattedText(llmExplanation)}
                     </Text>
                   </View>
                 </View>
