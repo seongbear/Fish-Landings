@@ -54,27 +54,61 @@ def construct_fisherman_prompt(prediction, drivers, raw_input):
         except: return default
 
     # --- 2. EXTRACT & SANITIZE CONTEXT ---
-    state_id = raw_input.get('state', -2)
-    month = raw_input.get('month', -2)
-    state_name = STATE_MAP.get(int(state_id), "Malaysia")
+    state_id_raw = raw_input.get('state', -2)
+    state_id = int(state_id_raw) if str(state_id_raw).lstrip('-').isdigit() else -2
+    state_name = STATE_MAP.get(state_id, "Malaysia")
     
     species_id = raw_input.get('species', -2)
     species_name = SPECIES_MAP.get(int(species_id), "Fish")
 
-    # --- 3. WEATHER EXTRACTION ---
+    # Extract Month & Year
+    month_num = raw_input.get('month', 0)
+    try: month_num = int(month_num)
+    except: month_num = 0
+    
+    # Use the input year if available, otherwise default to 2026
+    current_year = raw_input.get('year', 2026)
+    
+    month_names = ["Unknown", "January", "February", "March", "April", "May", "June", 
+                   "July", "August", "September", "October", "November", "December"]
+    month_name = month_names[month_num] if 0 < month_num <= 12 else "Current Month"
+
+    # --- 3. MONSOON GUARDRAIL (Malaysia Specific) ---
+    # Based on your Map: Kelantan(2), Pahang(6), Terengganu(13), Johor(14)
+    # Added Johor(14) because East Johor is critical during Monsoon.
+    east_coast_ids = [2, 6, 13, 14] 
+    
+    # Northeast Monsoon: Nov(11) to March(3)
+    monsoon_months = [11, 12, 1, 2, 3]
+
+    is_monsoon_danger = False
+    season_context = "Inter-Monsoon (Variable Weather)"
+
+    if month_num in monsoon_months:
+        season_context = "Northeast Monsoon (Musim Tengkujuh)"
+        if state_id in east_coast_ids:
+            is_monsoon_danger = True
+            season_context += " - CRITICAL FOR EAST COAST "
+    elif month_num in [5, 6, 7, 8, 9]:
+        season_context = "Southwest Monsoon"
+
+    # --- 4. WEATHER EXTRACTION & SAFETY ---
     wind_spd = safe_float(raw_input.get('wind_speed'), 0)
     pressure_val = safe_float(raw_input.get('pressure'), 1010)
     
     # GUARDRAIL: Safety Kill Switch
     is_storm = False
-    safety_override_msg = ""
+    safety_override_msg = "None"
     
     if wind_spd > 40: # ~22 knots
         is_storm = True
-        safety_override_msg = "WARNING: DANGEROUS WIND DETECTED."
+        safety_override_msg = "WARNING: DANGEROUS WIND DETECTED (>40km/h). "
     elif pressure_val < 996: 
         is_storm = True
         safety_override_msg = "WARNING: STORM PRESSURE DETECTED."
+    elif is_monsoon_danger:
+        # We don't block the trip, but we add a severe warning
+        safety_override_msg = "CAUTION: MONSOON SEASON (High Waves Likely)."
 
     # Simple Weather Summary
     weather_summary = (
@@ -83,11 +117,14 @@ def construct_fisherman_prompt(prediction, drivers, raw_input):
         f"Pressure: {raw_input.get('pressure', 'N/A')} hPa"
     )
 
-    # --- 4. VERDICT LOGIC ---
+    # --- 5. VERDICT LOGIC ---
     pred_val = safe_float(prediction, 0.0)
 
     if is_storm:
         verdict_status = "NO GO (Storm)"
+    elif is_monsoon_danger and pred_val < 1.0:
+        # If it's monsoon AND catch is low, strongly advise against it
+        verdict_status = "NO GO (Monsoon Risk)"
     elif pred_val < 0.5:
         verdict_status = "LOW CATCH"
     elif pred_val < 1.5:
@@ -95,7 +132,7 @@ def construct_fisherman_prompt(prediction, drivers, raw_input):
     else:
         verdict_status = "HIGH CATCH"
 
-    # --- 5. DRIVER PROCESSING ---
+    # --- 6. DRIVER PROCESSING ---
     pos_factors = []
     neg_factors = []
     sorted_drivers = sorted(drivers, key=lambda x: abs(x.get('shap_impact', 0)), reverse=True)
@@ -115,51 +152,51 @@ def construct_fisherman_prompt(prediction, drivers, raw_input):
     pos_text = ", ".join(pos_factors[:3]) if pos_factors else "None"
     neg_text = ", ".join(neg_factors[:3]) if neg_factors else "None"
 
-    # --- 6. THE MODIFIED PROMPT ---
+    # --- 7. THE PROMPT ---
     prompt = f"""
-You are an expert Captain Advisor. 
-Your goal is to explain the forecast to a fisherman in simple, plain language.
+You are an expert Captain Advisor for Malaysian fishermen. 
+Your goal is to explain the forecast in simple, plain language.
 
 --- STRICT RULES ---
-1. **Simple Words Only:** Do not use words like "variables", "correlation", "data", or "SHAP". Use words like "Causes", "Good", "Bad", "Strong".
-2. **Be Direct:** Keep sentences short and easy to understand. **Under 200 words.**
-3. **Safety First:** If Wind > 40km/h, tell them to STAY HOME.
-4. **No Guessing:** If you can't find the price on Google, say "Price unknown".
+1. **Simple Words Only:** No jargon. Use "Good", "Bad", "Strong Wind", "High Waves".
+2. **Be Direct:** Keep sentences short. **Under 200 words.**
+3. **Safety First:** If Wind > 40km/h OR it is Northeast Monsoon on the East Coast, warn them seriously.
+4. **No Guessing:** You must use Google Search for prices. If not found, say "Price unknown".
 
 --- TRIP INFO ---
 * **Target:** {species_name}
 * **Location:** {state_name}
+* **Season:** {season_context}
 * **Forecast:** {pred_val:.2f} tonnes
 * **Verdict:** {verdict_status}
-* **Safety Warning:** {safety_override_msg if is_storm else "None"}
+* **Safety Warning:** {safety_override_msg}
 * **Weather:** {weather_summary}
 * **What Helps (+):** {pos_text}
 * **What Hurts (-):** {neg_text}
 
 --- REQUIRED SEARCHES ---
 Search Google for:
-1. "Wholesale price for {species_name} per kg in {state_name} in {month}th last year in Ringgit Malaysia" (Current Price)
-2. "Amaran angin kencang {state_name} METMalaysia" (Safety)
-3. "Harga diesel Malaysia terkini" (Fuel)
+1. "Wholesale price for {species_name} per kg in {state_name} Malaysia {month_name} {current_year}" (Price Context)
+2. "Amaran hujan lebat angin kencang {state_name} METMalaysia terkini" (Monsoon Check)
+3. "Harga diesel industri Malaysia terkini" (Fuel)
 
 --- REPORT TEMPLATE ---
 
 **1. 💰 Is it Worth It? (Money)**
 * **Verdict:** {verdict_status}
-* **Market Check:** Search for the price of **{species_name}** in **{state_name}**.
-    * If Price is HIGH + Catch is LOW: "You might make money because the price is high."
+* **Season Check:** It is **{season_context}**.
+* **Market Check:** Search for the price of **{species_name}**.
+    * If Price is HIGH + Catch is LOW: "Price is high, but risk is high."
     * If Price is LOW + Catch is LOW: "Not worth the fuel cost today."
-* **Fuel:** Mention if fuel is expensive right now.
 
-**2. 🔬 Why? (Simple Explanation but in Scientific)**
+**2. 🔬 Why? (The Science)**
 * Explain simply why the catch is {verdict_status}.
 * Talk about the **Weather** ({weather_summary}).
 * Mention what is **Helping** ({pos_text}) and what is **Hurting** ({neg_text}).
-* *Example:* "The catch is low because the strong wind makes it hard for fish to school."
 
 **3. ⚓ Safety & Tip**
 * Check METMalaysia warnings. Is it safe?
-* Give one simple tip to fix the "What Hurts" factors.
+* **Monsoon Advice:** If it is Musim Tengkujuh (Nov-March) on East Coast, advise extreme caution regarding waves.
 
 **4. Captain's Decision**
 * One sentence: "GO" or "NO GO" and the main reason.

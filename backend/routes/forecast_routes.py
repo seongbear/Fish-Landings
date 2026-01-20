@@ -1,10 +1,12 @@
 from flask import Blueprint, request, jsonify
 from pydantic import ValidationError
 from services.ml_service import MLModelService
-from schemas import FisheryInput, PredictionResponse, ExplanationResponse
+from schemas import FisheryInput, PredictionResponse
 import logging
-import services.gemini_service as gemini_service
-from prompt.explain_prompt import construct_fisherman_prompt
+# import services.gemini_service as gemini_service
+import services.openai_service as openai_service
+# from prompt.explain_prompt import construct_fisherman_prompt
+from prompt.explain_pompt_v2 import construct_fisherman_prompt
 
 # Initialize Blueprint
 forecast_bp = Blueprint("forecast_bp", __name__)
@@ -125,7 +127,7 @@ def generate_llm_explanation():
         prompt_text = construct_fisherman_prompt(prediction, drivers, raw_input)
 
         # 3. Call the LLM
-        llm_explanation = gemini_service.generate_reply(prompt_text)
+        llm_explanation = openai_service.generate_reply(prompt_text)
 
         return jsonify({
             "explanation": llm_explanation,

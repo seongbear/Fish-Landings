@@ -283,5 +283,4 @@ export const postFeedback = async (payload: FeedbackData, docId?: string) => {
       throw error;
     }
   }
-  
 }

@@ -5,6 +5,7 @@ asgiref==3.8.1
 firebase-admin==6.5.0
 uvicorn==0.22.0
 pandas==2.3.3
+openai
 numpy
 joblib
 shap
