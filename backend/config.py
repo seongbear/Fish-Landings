@@ -20,7 +20,7 @@ if not DATABASE_URL:
     raise RuntimeError("Missing DATABASE_URL in .env")
 
 client = genai.Client(api_key=GEMINI_API_KEY)
-LLM_MODEL = "gemini-3-flash"
+LLM_MODEL = "gemini-2.5-flash-lite"
 
 cred = credentials.Certificate("serviceAccountKey.json")
 if not firebase_admin._apps:
