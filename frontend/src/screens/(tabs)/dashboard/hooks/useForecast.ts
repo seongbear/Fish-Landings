@@ -117,7 +117,7 @@ export const useForecast = () => {
                         finalValue,
                         explanationData.plot_analysis_data,
                         finalPayload,
-                        docId // <--- Pass docId here too
+                        docId 
                     );
                     setLlmExplanation(llmResult);
                 }

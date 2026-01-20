@@ -29,6 +29,8 @@ def home():
 def dashboard():
     return render_template('dashboard.html')
 
+print("Registered blueprints:", app.blueprints.keys())
+
 # 4. Wrap for ASGI (if using Uvicorn/Daphne)
 asgi_app = WsgiToAsgi(app)
 

@@ -1,0 +1,479 @@
+year,month,state ,species,gear_type,temp,wind,humidity,pressure,dew_point,uv_index,estimated_landings,explanation,golden_explanation
+2026,2,Kedah,Tenggiri,Lift Nets,25,10,82,1010,18,7,6953.5216,"**1. ?? Is it Worth It? (Money)**
+*   **Verdict:** HIGH CATCH
+*   **Market Check:** The wholesale price for Tenggiri (Spanish Mackerel) in Kedah is currently unknown.
+*   **Fuel:** Diesel costs RM 2.84 per liter in Peninsular Malaysia.
+
+**2. ?? Why? (Simple Explanation)**
+*   The catch is expected to be HIGH because Tenggiri (Spanish Mackerel) are in season. The wind is also good, blowing at 10 km/h, which helps. The year 2026 is also good for this catch. However, using Lift Nets and fishing in Kedah are not ideal and may hurt the catch. The weather is calm with a temperature of 25°C and a pressure of 1010 hPa.
+
+**3. ? Safety & Tip**
+*   There are no strong wind warnings for Kedah right now.    
+*   **Tip:** To improve your catch, consider using different gear types that are better suited for Tenggiri than Lift Nets. 
+
+**4. Captain's Decision**
+*   GO, because the catch is high and the weather is good.    
+
+**Sources:**
+1. selinawamucii.com
+2. tridge.com
+3. ecentral.my
+4. fishforit.com.my
+5. sinarharian.com.my
+6. met.gov.my","**1. ?? Is it Worth It? (Money)**
+* **Verdict:** HIGH CATCH
+* **Season Check:** It is the dry season (Good weather).
+* **Market Check:** The wholesale price for **Tenggiri** is high (approx RM 27.00/kg).
+    * Since the Price is HIGH and Catch is HIGH, this is a very profitable trip.
+* **Fuel:** Diesel is RM 2.94/liter.
+
+**2. ?? Why? (The Science)**
+* The catch is HIGH because the weather in Kedah during February is calm and dry, which is perfect for Tenggiri.
+* **Helping (+):** The wind is gentle (10 km/h) and the species (Tenggiri) is in high demand.
+* **Hurting (-):** Lift Nets are generally not the best gear for large Tenggiri, but the abundance covers for this.
+
+**3. ? Safety & Tip**
+* **Safety:** Safe. No strong wind warnings.
+* **Tip:** Since Lift Nets can miss fast fish, try using lines or drift nets to maximize the high-value Tenggiri catch.
+
+**4. Captain's Decision**
+* GO. High catch and high market price make this a jackpot trip.
+
+**Sources:**
+1. [LKIM Wholesale Prices Jan 2025](https://www.lkim.gov.my)
+2. [METMalaysia Weather](https://www.met.gov.my)"
+2026,2,Melaka,Bawal Putih,Barrier Nets,28,16,75,1002,24,9,4,"**1. ?? Is it Worth It? (Money)**
+
+*   **Verdict:** LOW CATCH
+*   **Market Check:** The price for Alu-Alu / Kacang-Kacang (Barracuda) in Kedah is unknown.
+*   **Fuel:** Diesel is RM 2.84 per liter in Peninsular Malaysia.
+
+**2. ?? Why?**
+
+The catch is low because the weather is good, but your gear is for anchovies, not barracuda. Kedah in 2026 helps a little, but the Anchovy Purse Seines gear and the Barracuda species are hurting the catch.
+
+*   **Weather:** The wind is only 10 km/h, the temperature is 25°C, and the pressure is 1010 hPa. This weather is good for fishing.
+
+**3. ? Safety & Tip**
+
+The weather is safe. The wind is low at 10 km/h.
+
+**Tip:** Try to use gear that is better for catching barracuda.
+
+**4. Captain's Decision**
+
+NO GO. The gear you are using is not good for catching barracuda, and the price is unknown.
+
+**Sources:**
+1. ecentral.my
+2. data.gov.my
+3. sinarharian.com.my
+4. met.gov.my
+5. melakahariini.my
+ LOG  Firestore updated with LLM Report.
+ LOG  Forecast prediction result: {""predicted_landings"": 0.3825697341127157, ""status"": ""success""}
+ LOG  New document created with ID: D7w1beChzEXamx44UiCD
+ LOG  SHAP explanation received
+ LOG  Firestore updated with SHAP explanation (Images + Data).
+ LOG  LLM explanation result: **1. ?? Is it Worth It? (Money)**
+* **Verdict:** LOW CATCH
+* **Market Check:** The price for Alu-Alu / Kacang-Kacang (Barracuda) in Kedah is unknown. Since the catch is expected to be low, it is likely not worth the fuel cost today.
+* **Fuel:** Diesel is currently RM 2.84 per liter in Peninsular Malaysia.
+
+**2. ?? Why? (Simple Explanation)**
+The catch is low today. The weather is good with light winds at 10 km/h and a temperature of 25°C. This year, 2026, and being in Kedah are good things. However, using Bag Nets and targeting Alu-Alu / Kacang-Kacang (Barracuda) are what make the catch low.
+
+**3. ? Safety & Tip**
+METMalaysia has not issued any strong wind warnings for Kedah. The weather looks safe for fishing. To help with the low catch, try using different fishing gear or targeting a different species if possible.
+
+**4. Captain's Decision**
+NO GO. The expected low catch means it's not worth the trip.  
+
+**Sources:**
+1. ecentral.my
+ LOG  Firestore updated with LLM Report.
+ LOG  Forecast prediction result: {""predicted_landings"": 0.49637574024654896, ""status"": ""success""}
+ LOG  New document created with ID: YVCJU29PVp9OoowX1QQH
+ LOG  SHAP explanation received
+ LOG  Firestore updated with SHAP explanation (Images + Data).
+ LOG  LLM explanation result: For your trip to Kedah targeting Alu-Alu / Kacang-Kacang (Barracuda):
+
+**1. ?? Is it Worth It? (Money)**
+
+*   **Verdict:** LOW CATCH
+*   **Market Check:** The wholesale price for Alu-Alu / Kacang-Kacang (Barracuda) in Kedah is not readily available for the past year.
+*   **Fuel:** Diesel prices in Malaysia are currently RM 2.84 per liter in Peninsular Malaysia.
+
+Given the low catch forecast and unknown market price, it's hard to say if this trip will be worth the fuel cost.
+
+**2. ?? Why? (Simple Explanation)**
+
+The catch is expected to be low. The weather is good, with light winds at 10 km/h, a comfortable temperature of 25°C, and normal pressure at 1010 hPa. Fishing in Kedah in 2026 is a good factor. However, using Lift Nets and targeting Alu-Alu / Kacang-Kacang (Barracuda) are hurting your chances for a good catch today.
+
+**3. ? Safety & Tip**
+
+There are no strong wind warnings for Kedah from MetMalaysia. A tip to help with the ""What Hurts"" factor: Consider using different gear if possible, as Lift Nets might not be the best for catching Alu-Alu / Kacang-Kacang (Barracuda) in this situation.
+
+**4. Captain's Decision**
+
+GO. The weather is good, and while the catch forecast is low, it might still be worth a try if you are prepared for a smaller haul.
+
+**Sources:**
+1. scribd.com
+2. ecentral.my
+3. data.gov.my
+4. sinarharian.com.my
+5. met.gov.my
+ LOG  Firestore updated with LLM Report.
+ LOG  Forecast prediction result: {""predicted_landings"": 9.312581892877345, ""status"": ""success""}
+ LOG  New document created with ID: VVnG6D2XzztZ9wmsQY5v
+ LOG  SHAP explanation received
+ LOG  Firestore updated with SHAP explanation (Images + Data).
+ LOG  LLM explanation result: **1. ?? Is it Worth It? (Money)**
+* **Verdict:** HIGH CATCH
+* **Market Check:** The wholesale price for Tuna in Kelantan is unknown.
+* **Fuel:** Diesel costs RM 2.84 per liter in Peninsular Malaysia.
+
+**2. ?? Why? (Simple Explanation but in Scientific)**
+The catch is HIGH CATCH because the species is Tuna, and the location is Kelantan in 2026. The weather is good, with light winds at 10 km/h, a comfortable temperature of 25°C, and normal pressure at 1010 hPa. These conditions are good for fishing. However, using Lift Nets might make the catch harder. The UV index is moderate, and the wind speed is low.
+
+**3. ? Safety & Tip**
+There are no safety warnings for strong winds in Kelantan. A tip to help with the Lift Nets is to try different fishing spots or times of day.
+
+**4. Captain's Decision**
+GO because the catch is HIGH and the weather is good.
+
+**Sources:**
+1. motorist.my
+2. ecentral.my
+3. met.gov.my
+4. sinarharian.com.my
+5. dailymotion.com
+ LOG  Firestore updated with LLM Report.
+ LOG  Forecast prediction result: {""predicted_landings"": 0, ""status"": ""success""}
+ LOG  New document created with ID: xjhUvkOIMoCoVsXSNvYr
+ LOG  SHAP explanation received
+ LOG  Firestore updated with SHAP explanation (Images + Data).
+ LOG  LLM explanation result: **1. ?? Is it Worth It? (Money)**
+*   **Verdict:** LOW CATCH
+*   **Market Check:** The wholesale price for Tuna (Kayu/Tongkol/Aya Hitam) in Kedah is around RM13.90 per kg. With a low catch expected, it might not be worth the fuel cost today.      
+*   **Fuel:** Diesel is RM2.84 per litre in Peninsular Malaysia.
+
+**2. ?? Why? (Simple Explanation)**
+The catch is low today. The wind is light at 10 km/h and the temperature is 25°C, with a pressure of 1010 hPa. These are good conditions. What helps the catch are the fish species (Tuna), a low Dew Point of -2.7097, and good pressure at 0.9492. What hurts the catch are the type of gear (Lift Nets), the location (Kedah), and the year (2026).
+
+**3. ? Safety & Tip**
+METMalaysia has issued warnings for strong winds and heavy rain in Kedah recently. You should check the latest warnings before you go. To help with the low catch, try using different gear if possible, as lift nets might not be the best for Tuna today.
+
+**4. Captain's Decision**
+NO GO. The catch is predicted to be very low, and there have been recent weather warnings for the area.
+
+**Sources:**
+1. manamurah.com
+2. carlist.my
+3. motorist.my
+4. ecentral.my
+5. sinarharian.com.my
+6. dailymotion.com
+7. siakapkeli.my
+8. met.gov.my
+9. melakahariini.my
+ LOG  Firestore updated with LLM Report.
+ LOG  Forecast prediction result: {""predicted_landings"": 0, ""status"": ""success""}
+ LOG  New document created with ID: SdUWnFyh0GZoplDOCxSo
+ LOG  SHAP explanation received
+ LOG  Firestore updated with SHAP explanation (Images + Data).
+ LOG  LLM explanation result: **1. ?? Is it Worth It? (Money)**
+
+*   **Verdict:** LOW CATCH
+*   **Market Check:** The price for Kayu, Tongkol, or Aya Hitam (Tuna) is RM1.95 per kg at the market. Since the catch is low and the price is low, it is not worth the fuel cost today.  
+*   **Fuel:** Diesel costs RM2.84 per liter in Peninsular Malaysia.
+
+**2. ?? Why? (Simple Explanation)**
+
+The catch is low today. The weather is good with light winds at 10 km/h, warm at 25°C, and normal pressure at 1010 hPa. The species you are after, Kayu/Tongkol/Aya Hitam (Tuna), is a good sign for a catch. The year 2026 and the pressure of 0.9492 are also good. However, using bag nets is hurting your chances, and the location in Kedah is also not helping.
+
+**3. ? Safety & Tip**
+
+There are no strong wind warnings for Kedah from METMalaysia. Stay safe out there. A tip to help your catch is to consider using different gear instead of bag nets, as they seem to be hurting your chances.
+
+**4. Captain's Decision**
+
+NO GO. The catch is expected to be very low today, and the market price is not good enough to make it worthwhile.
+
+**Sources:**
+1. manamurah.com
+2. motorist.my
+3. ecentral.my
+4. sinarharian.com.my
+5. dailymotion.com
+6. siakapkeli.my
+7. met.gov.my
+8. melakahariini.my
+ LOG  Firestore updated with LLM Report.
+ LOG  Forecast prediction result: {""predicted_landings"": 0, ""status"": ""success""}
+ LOG  New document created with ID: QDPwiVUE4Xek4ozvR3Bk
+ LOG  SHAP explanation received
+ LOG  Firestore updated with SHAP explanation (Images + Data).
+ LOG  LLM explanation result: **1. ?? Is it Worth It? (Money)**
+*   **Verdict:** LOW CATCH
+*   **Market Check:** The wholesale price for Kayu/Tongkol/Aya Hitam (Tuna) in Kedah is RM 1.95 per kg. Because the catch is low and the price is low, it's not worth the fuel cost today.
+*   **Fuel:** Diesel costs RM 2.84 per liter in Peninsular Malaysia.
+
+**2. ?? Why? (Simple Explanation)**
+The catch is low today. The weather is good with light wind at 10 km/h, warm at 25°C, and steady pressure at 1010 hPa. However, using Bag Nets hurts the catch. The species (Kayu/Tongkol/Aya Hitam Tuna) and the year 2026 are good for the catch.     
+
+**3. ? Safety & Tip**
+The weather is safe today, with no strong wind warnings for Kedah. To help with the catch, try using a different gear type instead of Bag Nets.
+
+**4. Captain's Decision**
+NO GO, because the catch is too low to be worth the trip.     
+
+**Sources:**
+1. manamurah.com
+2. motorist.my
+3. ecentral.my
+ LOG  Firestore updated with LLM Report.
+ LOG  Forecast prediction result: {""predicted_landings"": 0.31862303701945216, ""status"": ""success""}
+ LOG  New document created with ID: CM3F5ZckfL3jFwPjUQp3
+ LOG  SHAP explanation received
+ LOG  Firestore updated with SHAP explanation (Images + Data).
+ LOG  LLM explanation result: **1. ?? Is it Worth It? (Money)**
+*   **Verdict:** LOW CATCH
+*   **Market Check:** The wholesale price for Tenggiri (Spanish Mackerel) in Kelantan is RM 28.40 per kg.
+*   You might make money because the price is high, even though the catch is expected to be low.
+*   **Fuel:** Diesel costs RM 2.84 per liter in Peninsular Malaysia.
+
+**2. ?? Why? (Simple Explanation)**
+The catch is low today. The weather is good with light winds at 10 km/h and a temperature of 25°C. The year 2026 and the wind speed are helping to bring in some fish. However, using bag nets and targeting Tenggiri (Spanish Mackerel) are hurting the catch.
+
+**3. ? Safety & Tip**
+The weather forecast from METMalaysia shows no strong wind warnings for Kelantan. It is safe to go out. To help with the low catch, try using different fishing gear or targeting a different species if possible.
+
+**4. Captain's Decision**
+GO, because the high price for Tenggiri makes it worth the trip despite the low catch forecast.
+
+**Sources:**
+1. caltex.com
+2. ecentral.my
+3. ringgitplus.com
+4. met.gov.my
+ LOG  Firestore updated with LLM Report.
+ LOG  Forecast prediction result: {""predicted_landings"": 6.567489440306202, ""status"": ""success""}
+ LOG  New document created with ID: lAV0Nt9Xirqn3d0PKJ99
+ LOG  SHAP explanation received
+ LOG  Firestore updated with SHAP explanation (Images + Data).
+ LOG  LLM explanation result: **1. ?? Is it Worth It? (Money)**
+* **Verdict:** HIGH CATCH
+* **Market Check:** The wholesale price for Tenggiri (Spanish Mackerel) in Kedah is not directly available from the search results. However, general mackerel prices in Malaysia range from MYR 5.31 to MYR 9.22 per kilogram. With a forecast of 6.57 tonnes, you might make good money if the price is strong.      
+* **Fuel:** Diesel prices in Malaysia are RM 2.84 per liter in Peninsular Malaysia.
+
+**2. ?? Why? (Simple Explanation)**
+* The catch is expected to be HIGH because Tenggiri (Spanish Mackerel) are present and the year is 2026. The wind speed is also good at 10 km/h. However, the use of Lift Nets and fishing in Kedah can make the catch harder.
+
+**3. ? Safety & Tip**
+* There are no specific wind warnings for your location and time that indicate unsafe conditions.
+* To help with the factors that might hurt your catch, try to use different fishing spots in Kedah or consider other gear types if possible.
+
+**4. Captain's Decision**
+* GO, because the forecast is high and the weather is good.   
+
+**Sources:**
+1. selinawamucii.com
+2. motorist.my
+3. ecentral.my
+4. met.gov.my
+5. sinarharian.com.my
+6. dailymotion.com
+7. siakapkeli.my
+8. melakahariini.my
+ LOG  Firestore updated with LLM Report.
+ LOG  Forecast prediction result: {""predicted_landings"": 0, ""status"": ""success""}
+ LOG  New document created with ID: YHO2Ux9pdzCV0vJIT5yn
+ LOG  SHAP explanation received
+ LOG  Firestore updated with SHAP explanation (Images + Data).
+ LOG  LLM explanation result: **1. ?? Is it Worth It? (Money)**
+* **Verdict:** LOW CATCH
+* **Market Check:** The price for Bawal Putih (White Pomfret) in Pahang is unknown. If the price is high and the catch is low, you might still make money. If the price is low and the catch is low, it's not worth the fuel cost today.
+* **Fuel:** Diesel in Malaysia costs around RM 2.84 per liter for standard diesel in Peninsular Malaysia.
+
+**2. ?? Why? (Simple Explanation)**
+The catch is low today. The weather is good, with wind at 16 km/h, temperature at 28°C, and pressure at 1002 hPa. The state of Pahang and the wind speed are helping your trip. However, using Barrier Nets and targeting Bawal Putih are hurting your chances of a good catch.
+
+**3. ? Safety & Tip**
+There are no safety warnings for strong winds today. A tip to help with the ""hurting"" factors is to consider using different gear than Barrier Nets, as they might not be best for catching Bawal Putih.
+
+**4. Captain's Decision**
+NO GO. The catch is too low, and the price is unknown, making it a risky trip.
+
+**Sources:**
+1. motorist.my
+2. ecentral.my
+3. kosmo.com.my
+4. youtube.com
+5. siakapkeli.my
+6. met.gov.my
+7. getaran.my
+ LOG  Firestore updated with LLM Report.
+ LOG  Forecast prediction result: {""predicted_landings"": 0.004020044646501325, ""status"": ""success""}
+ LOG  New document created with ID: ZMgaagbJdjUErwuQnHKH
+ LOG  SHAP explanation received
+ LOG  Firestore updated with SHAP explanation (Images + Data).
+ LOG  LLM explanation result: **1. ?? Is it Worth It? (Money)**
+*   **Verdict:** LOW CATCH
+*   **Market Check:** The price for Bawal Putih (White Pomfret) in Melaka is unknown. Since the catch is low, it's hard to say if it's worth the fuel cost.
+*   **Fuel:** Diesel costs RM 2.84 per liter in Peninsular Malaysia.
+
+**2. ?? Why? (Simple Explanation)**
+*   The catch is low because the wind is not strong enough to help much. The weather is okay with wind at 16 km/h, temperature at 28°C, and pressure at 1002 hPa. However, the location in Melaka, using Barrier Nets, and targeting Bawal Putih (White Pomfret) are hurting the catch.
+
+**3. ? Safety & Tip**
+*   The weather forecast shows a storm warning for Melaka with heavy rain and strong winds until 9 PM tonight. Because the wind can be strong (over 40km/h), it is not safe to go out. **STAY HOME.**
+
+**4. Captain's Decision**
+*   NO GO because of the storm warning.
+
+**Sources:**
+1. ecentral.my
+2. data.gov.my
+3. astroawani.com
+4. bernama.com
+5. siakapkeli.my
+6. sinarharian.com.my
+ LOG  Firestore updated with LLM Report.","**1. ?? Is it Worth It? (Money)**
+* **Verdict:** LOW CATCH (Near Zero)
+* **Season Check:** February is peak demand (Chinese New Year season).
+* **Market Check:** The wholesale price for **Bawal Putih** is extremely high (approx RM 60.00 - RM 80.00/kg).
+    * **Analysis:** Even though the price is sky-high, the predicted catch is 0.00 tonnes. You cannot make money if you catch nothing.
+* **Fuel:** Diesel is RM 2.94/liter.
+
+**2. ?? Why? (The Science)**
+* The model predicts a **Failed Trip (0 tonnes)**.
+* **Hurting (-):**
+    * **Pressure (1002 hPa):** This is significantly lower than the standard 1010 hPa, indicating a low-pressure system or approaching storm. Fish often go deep or stop feeding during pressure drops.
+    * **Gear:** Barrier Nets may not be effective in these specific pressure conditions for Bawal.
+
+**3. ? Safety & Tip**
+* **Safety:** **CAUTION.** Pressure of 1002 hPa is a sign of instability. 
+
+[Image of low pressure system weather chart]
+ Sudden squalls (Sumatras) are likely in the Malacca Strait.
+* **Tip:** Do not use Barrier Nets today. If you must go, try trawling in deeper waters, but the low pressure makes this risky.
+
+**4. Captain's Decision**
+* **NO GO.** Despite the high market price, the catch is zero and the low pressure indicates bad weather. Save your fuel.
+
+**Sources:**
+1. [LKIM Market Prices (Bawal Putih)](https://www.lkim.gov.my)
+2. [METMalaysia Marine Forecast](https://www.met.gov.my)"
+2026,8,Perak,Yu,Bag Nets,22,12,85,1010,16,6,1087.359,"Here is your fishing report:
+
+**1. ?? Is it Worth It? (Money)**
+* **Verdict:** AVERAGE CATCH
+* **Market Check:** The wholesale price for Yu (Shark) in Perak is unknown.
+* **Fuel:** Diesel prices are currently RM 2.84 per liter in Peninsular Malaysia.
+
+**2. ?? Why? (Simple Explanation)**
+The catch is predicted to be average. The weather forecast shows light winds at 12 km/h and a temperature of 22°C. The location in Perak is good for catching fish. However, using bag nets can make the catch lower. The year 2026 is also a factor that might hurt the catch.
+
+**3. ? Safety & Tip**
+There are no strong wind warnings for Perak right now. A tip to help with the bag nets is to try using different types of nets if possible.
+
+**4. Captain's Decision**
+GO. The weather is good, and even though bag nets can hurt the catch, the location in Perak is promising.
+
+**Sources:**
+1. ecentral.my
+2. Current time information in MY.
+3. met.gov.my
+4. sinarharian.com.my
+5. siakapkeli.my","**1. ?? Is it Worth It? (Money)**
+* **Verdict:** AVERAGE CATCH
+* **Season Check:** It is the Southwest Monsoon (Variable weather).
+* **Market Check:** The price for **Yu (Shark)** is unable to be found (usually low value).
+    * Since Price is likely LOW and Catch is AVERAGE, the profit margin is tight.
+* **Fuel:** Diesel is RM 2.94/liter.
+
+**2. ?? Why? (The Science)**
+* The catch is AVERAGE.
+* **Helping (+):** The location (Perak) has decent currents in August.
+* **Hurting (-):** Bag Nets are passive gear, and Yu (Sharks) often escape them. The wind (12 km/h) is a bit slow for drifting gear efficiency.
+
+**3. ? Safety & Tip**
+* **Safety:** Safe, but watch out for sudden afternoon squalls common in August.
+* **Tip:** Bag nets might get damaged by sharks; check your nets frequently to avoid gear loss.
+
+**4. Captain's Decision**
+* GO, but keep the trip short to save fuel since the fish value is low.
+
+**Sources:**
+1. [Price Unavailable](https://google.com)
+2. [METMalaysia Forecast](https://www.met.gov.my)"
+2026,12,Kelantan,Selar,Hooks & Lines ,24,18,87,1010,16,5,12394.7443,"Selamat pagi, Kapten! Here's your fishing forecast.
+
+---
+
+**1. ?? Is it Worth It? (Money)**
+*   **Verdict:** HIGH CATCH
+*   **Market Check:** The price for Selar fish in Kelantan is unable to be found right now.
+*   **Fuel:** Diesel costs RM2.84 for each liter this week.   
+
+**2. ?? Why? (Simple Explanation but in Scientific)**
+The forecast says you will get a lot of fish today. This is good because fishing in Kelantan and using hooks and lines helps bring in a big catch. However, the type of fish (Selar) can sometimes mean less fish. Also, the air pressure is a bit bad, and the wind speed has a small bad effect. Today's weather has light wind at 18 km/h, the temperature is 24°C, and the air pressure is 1010 hPa.
+
+**3. ? Safety & Tip**
+METMalaysia's current forecast for Kelantan shows no rain or strong winds for today. It looks safe to go out. To help with the slightly bad air pressure, try fishing in slightly deeper or shallower waters than usual.
+
+**4. Captain's Decision**
+GO. You have a good chance for a big catch, and it is safe to go out.
+
+**Sources:**
+1. ecentral.my
+2. ringgitplus.com
+3. caltex.com
+4. met.gov.my
+ LOG  Firestore updated with LLM Report.
+ LOG  Forecast prediction result: {""predicted_landings"": 12.394744276203634, ""status"": ""success""}
+ LOG  New document created with ID: WP8OjJFOrych1XY9uljN
+ LOG  SHAP explanation received
+ LOG  Firestore updated with SHAP explanation (Images + Data).
+ LOG  LLM explanation result: Here is your forecast, Captain:
+
+**1. ?? Is it Worth It? (Money)**
+*   **Verdict:** HIGH CATCH
+*   **Market Check:** We looked for the price of Selar in Kelantan, but the price for December last year couldn't be found. Price unable to be found.
+*   **Fuel:** Your diesel will cost around RM 2.84 per litre in Peninsular Malaysia.
+
+**2. ?? Why? (Simple Explanation but in Scientific)**
+You have a good chance to catch a lot of fish today. The air in Kelantan is warm at 24°C, and the air pressure is steady. Using hooks and lines in Kelantan helps with a good catch. However, catching Selar specifically, the air pressure, and the wind are things that make it a bit harder.
+
+**3. ? Safety & Tip**
+The weather forecast for Kelantan shows no rain for this morning, meaning no strong warnings are currently issued. Even though the wind is gentle at 18 km/h, it still makes catching Selar a bit harder. Try to find spots where the water is calmer.  
+
+**4. Captain's Decision**
+GO. You have a good chance for a high catch today, and the weather is safe.
+
+**Sources:**
+1. motorist.my
+2. ecentral.my
+3. met.gov.my","**1. ?? Is it Worth It? (Money)**
+* **Verdict:** HIGH CATCH
+* **Season Check:** It is **Northeast Monsoon (Musim Tengkujuh) - CRITICAL FOR EAST COAST**.
+* **Market Check:** The wholesale price for **Selar** is moderate (approx RM 13.00/kg).
+    * Price is okay, but the risk is very high.
+
+**2. ?? Why? (The Science)**
+* The model predicts a HIGH catch (12 tonnes) because the data suggests schools are present.
+* **Weather:** Wind is 18 km/h (Input data), but the **Season (December)** means waves can rise suddenly.
+* **Helping (+):** Hooks & Lines are good for targeting schooling Selar.
+
+**3. ? Safety & Tip**
+* **Safety:** **CAUTION: MONSOON SEASON.** Even if the wind seems low now, the sea state in December is unpredictable and dangerous.
+* **Tip:** Stay close to shore. Do not go to deep water.
+
+**4. Captain's Decision**
+* PROCEED WITH EXTREME CAUTION. The catch is high, but the Monsoon risk could cost you your boat.
+
+**Sources:**
+1. [LKIM Wholesale Prices Jan 2025](https://www.lkim.gov.my)
+2. [METMalaysia Monsoon Warning](https://www.met.gov.my)"

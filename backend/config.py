@@ -6,11 +6,15 @@ from firebase_admin import credentials
 
 load_dotenv()
 
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 if not GEMINI_API_KEY:
     raise RuntimeError("Missing GEMINI_API_KEY in .env")
+
+if not OPENAI_API_KEY:
+    raise RuntimeError("Missing OPENAI_API_KEY in .env")
 
 if not DATABASE_URL:
     raise RuntimeError("Missing DATABASE_URL in .env")
@@ -24,5 +28,4 @@ if not firebase_admin._apps:
         "databaseURL": DATABASE_URL
     })
 
-OPEN_AI_API_KEY = os.getenv("OPENAI_API_KEY")
 LLM_MODEL_OPEN_AI = "openai/gpt-oss-120b:free"

@@ -76,6 +76,8 @@ export const getLandingsData = async (
 };
 
 export const postForecastLandings = async (payload: ForecastPayload): Promise<{ prediction: number, docId?: string}> =>{
+  console.log("Posting forecast request...");
+  console.log("Inputs:", payload);
   try{
     const response = await fetch(`${API_BASE_URL}/forecast/predict`, {
       method: 'POST',

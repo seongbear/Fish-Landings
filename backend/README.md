@@ -53,6 +53,7 @@ pip install -r requirements.txt
 ```ini
 GEMINI_API_KEY=your_google_genai_api_key
 DATABASE_URL=https://your-project-default-rtdb.firebaseio.com
+OPENAI_API_KEY=your_open_ai_api_key
 ```
 
 ---
@@ -137,19 +138,19 @@ Retrieve chat message history for a session
 
 ## 🧠 Tech Stack
 
-* **Flask (ASGI-compatible)**
-* **Uvicorn**
-* **Firebase Realtime Database**
-* **Google Gemini LLM**
-* **Python 3.10+**
+- **Flask (ASGI-compatible)**
+- **Uvicorn**
+- **Firebase Realtime Database**
+- **Google Gemini LLM**
+- **Python 3.10+**
 
 ---
 
 ## ✅ Notes
 
-* Ensure `.venv` is activated before running the server
-* Firebase Admin SDK is required for database access
-* Gemini API key is mandatory for chat functionality
+- Ensure `.venv` is activated before running the server
+- Firebase Admin SDK is required for database access
+- Gemini API key is mandatory for chat functionality
 
 ---
 

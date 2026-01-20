@@ -1,43 +1,51 @@
 from openai import OpenAI
 from config import OPENAI_API_KEY, LLM_MODEL_OPEN_AI
 
-client = OpenAI(api_key=OPENAI_API_KEY)
+client = OpenAI(
+    base_url="https://openrouter.ai/api/v1",
+    api_key=OPENAI_API_KEY
+)
 
 def generate_reply(prompt: str) -> str:
-    """Call OpenAI model safely and return generated text."""
+    """
+    Call OpenAI chat completion model with reasoning enabled and return the assistant's reply.
+    """
     try:
-        response = client.responses.create(
+        # First API call with reasoning enabled
+        initial_response = client.chat.completions.create(
             model=LLM_MODEL_OPEN_AI,
-            input=prompt,
-            tools=[
-                {
-                    "type": "web_search"   # enables web search (similar to Gemini Google Search tool)
-                }
+            messages=[
+                {"role": "user", "content": prompt}
             ],
-            max_output_tokens=500,
+            extra_body={"reasoning": {"enabled": True}},
+            max_tokens=500
         )
 
-        # Extract text output
-        final_text = response.output_text.strip() if response.output_text else "No response generated."
+        # Extract assistant message
+        assistant_msg = initial_response.choices[0].message
 
-        # Extract citations if web search was used
-        sources = []
-        for item in response.output:
-            if item["type"] == "web_search_call":
-                for result in item.get("results", []):
-                    if "url" in result:
-                        sources.append((result.get("title", "Web Source"), result["url"]))
+        # Prepare messages for follow-up (to preserve reasoning if needed)
+        messages = [
+            {"role": "user", "content": prompt},
+            {
+                "role": "assistant",
+                "content": assistant_msg.content,
+                "reasoning_details": getattr(assistant_msg, "reasoning_details", None)
+            }
+        ]
 
-        # Append sources (deduplicated)
-        if sources:
-            final_text += "\n\n**Sources:**\n"
-            seen = set()
-            for i, (title, url) in enumerate(sources, 1):
-                if url not in seen:
-                    seen.add(url)
-                    final_text += f"{i}. {title}\n"
+        # Optional second call to continue reasoning (can skip if single call is enough)
+        followup_response = client.chat.completions.create(
+            model=LLM_MODEL_OPEN_AI,
+            messages=messages,
+            extra_body={"reasoning": {"enabled": True}},
+            max_tokens=500
+        )
 
-        return final_text
+        # Extract final text
+        final_text = followup_response.choices[0].message.content.strip()
+
+        return final_text if final_text else "No response generated."
 
     except Exception as e:
         print("\n--- OPENAI API ERROR ---")

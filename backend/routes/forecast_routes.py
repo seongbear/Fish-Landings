@@ -6,7 +6,7 @@ import logging
 # import services.gemini_service as gemini_service
 import services.openai_service as openai_service
 # from prompt.explain_prompt import construct_fisherman_prompt
-from prompt.explain_pompt_v2 import construct_fisherman_prompt
+from prompt.explain_pompt_v2 import construct_fisherman_prompt_v2
 
 # Initialize Blueprint
 forecast_bp = Blueprint("forecast_bp", __name__)
@@ -124,7 +124,7 @@ def generate_llm_explanation():
 
         # 2. Construct the Prompt with ALL context
         # This uses the UPDATED construct_fisherman_prompt that handles the list logic
-        prompt_text = construct_fisherman_prompt(prediction, drivers, raw_input)
+        prompt_text = construct_fisherman_prompt_v2(prediction, drivers, raw_input)
 
         # 3. Call the LLM
         llm_explanation = openai_service.generate_reply(prompt_text)
